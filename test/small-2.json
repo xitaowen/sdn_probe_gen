@@ -1,0 +1,68 @@
+{
+    "dependency": [
+        "0,1", 
+        "0,3", 
+        "1,5", 
+        "2,3", 
+        "2,4", 
+        "3,5", 
+        "4,5"
+    ], 
+    "table": [
+        {
+            "actions": {
+                "output": "0", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "dst-port": "1", 
+            "id": "0", 
+            "priority": "3", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "1", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "id": "1", 
+            "priority": "2", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-dst-ip": "0.0.0.4"
+            }, 
+            "dst-port": "1", 
+            "id": "2", 
+            "priority": "2", 
+            "src-port": "1"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "dst-port": "1", 
+            "id": "3", 
+            "priority": "1"
+        }, 
+        {
+            "actions": {
+                "output": "3", 
+                "set-dst-ip": "0.0.0.4"
+            }, 
+            "id": "4", 
+            "priority": "1", 
+            "src-port": "1"
+        }, 
+        {
+            "actions": {
+                "output": "3", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "id": "5", 
+            "priority": "0"
+        }
+    ]
+}

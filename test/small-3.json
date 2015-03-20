@@ -1,0 +1,46 @@
+{
+    "dependency": [
+        "0,2", 
+        "0,5", 
+        "2,7", 
+        "5,7"
+    ], 
+    "table": [
+        {
+            "actions": {
+                "output": "0", 
+                "set-dst-ip": "0.0.0.4"
+            }, 
+            "dst-port": "2", 
+            "id": "0", 
+            "priority": "4", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "1", 
+                "set-dst-ip": "0.0.0.4"
+            }, 
+            "id": "2", 
+            "priority": "3", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "dst-port": "2", 
+            "id": "5", 
+            "priority": "1"
+        }, 
+        {
+            "actions": {
+                "output": "3", 
+                "set-dst-ip": "0.0.0.5"
+            }, 
+            "id": "7", 
+            "priority": "0"
+        }
+    ]
+}

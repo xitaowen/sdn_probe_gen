@@ -1,0 +1,62 @@
+{
+    "dependency": [
+        "0,2", 
+        "0,3", 
+        "1,2", 
+        "1,4", 
+        "2,5", 
+        "3,5", 
+        "4,5"
+    ], 
+    "table": [
+        {
+            "actions": {
+                "output": "1", 
+                "set-src-port": "80"
+            }, 
+            "dst-ip": "2.0.0.1/32", 
+            "id": "0", 
+            "priority": "3", 
+            "src-ip": "1.0.0.0/24"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-src-port": "80"
+            }, 
+            "dst-ip": "2.0.0.2/32", 
+            "id": "1", 
+            "priority": "2", 
+            "src-ip": "1.0.0.0/24"
+        }, 
+        {
+            "actions": {
+                "output": "1"
+            }, 
+            "dst-ip": "2.0.0.1/32", 
+            "id": "3", 
+            "priority": "2"
+        }, 
+        {
+            "actions": {
+                "set-src-port": "80"
+            }, 
+            "id": "2", 
+            "priority": "1", 
+            "src-ip": "1.0.0.0/24"
+        }, 
+        {
+            "actions": {
+                "output": "2"
+            }, 
+            "dst-ip": "2.0.0.2/32", 
+            "id": "4", 
+            "priority": "1"
+        }, 
+        {
+            "actions": {}, 
+            "id": "5", 
+            "priority": "0"
+        }
+    ]
+}

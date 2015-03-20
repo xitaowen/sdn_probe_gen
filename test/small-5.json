@@ -1,0 +1,88 @@
+{
+    "dependency": [
+        "0,3", 
+        "0,6", 
+        "2,3", 
+        "2,5", 
+        "3,7", 
+        "4,5", 
+        "4,6", 
+        "5,7", 
+        "6,7"
+    ], 
+    "table": [
+        {
+            "actions": {
+                "output": "4", 
+                "set-src-port": "1"
+            }, 
+            "dst-port": "2", 
+            "id": "0", 
+            "priority": "65"
+        }, 
+        {
+            "actions": {
+                "output": "5", 
+                "set-src-port": "1"
+            }, 
+            "dst-port": "2", 
+            "id": "1", 
+            "priority": "64"
+        }, 
+        {
+            "actions": {
+                "output": "0", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "dst-port": "1", 
+            "id": "2", 
+            "priority": "5", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "1", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "id": "3", 
+            "priority": "4", 
+            "src-port": "2"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "dst-port": "1", 
+            "id": "4", 
+            "priority": "3", 
+            "src-port": "1"
+        }, 
+        {
+            "actions": {
+                "output": "3", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "dst-port": "1", 
+            "id": "5", 
+            "priority": "2"
+        }, 
+        {
+            "actions": {
+                "output": "4", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "id": "6", 
+            "priority": "1", 
+            "src-port": "1"
+        }, 
+        {
+            "actions": {
+                "output": "5", 
+                "set-dst-ip": "0.0.0.2"
+            }, 
+            "id": "7", 
+            "priority": "0"
+        }
+    ]
+}

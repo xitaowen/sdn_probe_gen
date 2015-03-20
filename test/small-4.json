@@ -1,0 +1,32 @@
+{
+    "dependency": [
+        "0,2", 
+        "2,4"
+    ], 
+    "table": [
+        {
+            "actions": {
+                "output": "1", 
+                "set-dst-ip": "2.0.0.1"
+            }, 
+            "dst-ip": "3.0.0.0/32", 
+            "id": "0", 
+            "priority": "194", 
+            "src-ip": "0.0.0.0/2"
+        }, 
+        {
+            "actions": {
+                "output": "2", 
+                "set-dst-ip": "2.0.0.2"
+            }, 
+            "dst-ip": "3.0.0.0/32", 
+            "id": "2", 
+            "priority": "65"
+        }, 
+        {
+            "actions": {}, 
+            "id": "4", 
+            "priority": "2"
+        }
+    ]
+}
