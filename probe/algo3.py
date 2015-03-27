@@ -456,6 +456,61 @@ def DAGLoader(filename):
         ret_rules[ids] = [[rl]]
 
     return ret_rules, ret_dag
+import random
+import time
+def IssueProbe(pkt, rules,v1,v2):
+    print pkt
+    if random.randint(0,1) == 0:
+        return v1
+    else:
+        return v2
+    for rule in rules:
+        return rule
+def packetGenerator_3(edge_dict, rule_list, types):
+    S = []
+    VV = []
+    EE = []
+    for v1 in edge_dict:
+        vset = edge_dict[v1]
+        for v2 in vset:
+            S.append([v1,v2])
+    while len(S) > 0:
+        time.sleep(0.1)
+        index = random.randint(0,len(S)-1)
+        v1 = S[index][0]
+        v2 = S[index][1]
+        #print len(S),index,v1,v2
+        #print VV,EE
+        header_space = []
+        for edge in EE:
+            if edge[0] == v1 or edge[0] == v2:
+                header_space.append(rule_list[edge[1]])
+        intersection = intersect_molecule(rule_list[v1],rule_list[v2])
+        T = (intersection,header_space)
+        while True:
+            time.sleep(0.1)
+            subtraction = subtraction_wrapper(intersection, header_space)
+            if subtraction == None:
+                break
+
+            pkt = createPacket(intersection,header_space,types)
+
+            vhit = IssueProbe(pkt,rule_list,v1,v2)
+            if not vhit in VV:
+                VV.append(vhit)
+            if vhit == v1 or vhit == v2:
+                EE.append([v1,v2])
+                del S[index]
+                break
+            EE.append([v2,vhit])
+            EE.append([v1,vhit])
+            header_space.append(rule_list[vhit])
+            S.remove(v1,vhit)
+            S.remove(v2.vhit)
+    return VV,EE
+
+
+
 
 import sys
 if __name__ == "__main__":
@@ -509,7 +564,8 @@ if __name__ == "__main__":
 
     rule_list,edge_dict = DAGLoader(dag_file);
 
-    packetGenerator(edge_dict, rule_list, types)
+    #packetGenerator(edge_dict, rule_list, types)
+    packetGenerator_3(edge_dict, rule_list, types)
 
     #print rule_list
     #print edge_list

@@ -30,7 +30,7 @@ def rule_parse(types, rule_data):
 
     return rule_list
 
-def createPacket(subtraction, types):
+'''def createPacket(subtraction, types):
     if subtraction == None:
         return {}
 
@@ -40,6 +40,83 @@ def createPacket(subtraction, types):
         if rule[i] != -1:
             value = rule[i]
             packet[types[i]] = value
+    return packet
+'''
+
+import miniSAT
+
+len_type = {}
+def rule2cnf(rule, op, types):
+    cur = 0
+    ret = ""
+    for ty in range(0,len(types)):
+        typ = types[ty]
+        if len_type.has_key(typ):
+            ln = len_type[typ]
+        else:
+            ln = 1
+        if rule[ty] == -1:
+            cur += ln
+            continue
+        dt = rule[ty]
+        for i in range(0,ln):
+            if (dt&(1<<(ln-i-1))) > 0:
+                if op > 0:
+                    ret += " "+str(cur+ln-i)
+                else:
+                    ret += " "+"-"+str(cur+ln-i)
+            else:
+                if op < 0:
+                    ret += " "+str(cur+ln-i)
+                else:
+                    ret += " "+"-"+str(cur+ln-i)
+        cur += ln
+    #print cur
+    return ret
+
+def ans2packet(ans, types):
+    cur = 0
+    ret = {}
+    for ty in range(0,len(types)):
+        typ = types[ty]
+        if len_type.has_key(typ):
+            ln = len_type[typ]
+        else:
+            ln = 1
+        ret[typ] = 0
+        for i in range(0,ln):
+            ret[typ] <<= 1
+            #print cur+ln-i
+            if cur+ln-i>= len(ans):
+                ret[typ] += 0
+                continue
+            f = int(ans[cur+ln-i])
+            if f < 0:
+                ret[typ] += 0
+            else:
+                ret[typ] += 1
+        cur += ln
+    return ret
+
+
+def createPacket(subtraction, header_space, types):
+    if subtraction == None:
+        return {}
+    cnf = "p cnf 100 "+str(len(header_space)+1)
+    rule = subtraction[0][0]
+    cnf += " "+rule2cnf(rule,1,types)+" 0"
+    for header in header_space:
+        rule = header[0][0]
+        cnf += " "+rule2cnf(rule,-1,types)+" 0"
+    #print cnf
+    ans = miniSAT.solve(cnf)
+    #print "inter:",subtraction
+    #print "header_space",header_space
+    #print "ans:",ans
+    ans = ans.split(' ')
+    if ans[0] == 'SAT':
+        return ans2packet(ans,types)
+    packet = {}
     return packet
 
 # problem
@@ -57,7 +134,7 @@ def packetGenerator(edge_dict, rule_list, types):
     for rule1 in edge_dict:
         #print "rule1 =", rule1
         if edge_dict[rule1]:
-            print "rule has other rule to depend on"
+            #print "rule has other rule to depend on"
             adj_list = edge_dict[rule1]
             #print "adj_list =", adj_list
 
@@ -66,42 +143,44 @@ def packetGenerator(edge_dict, rule_list, types):
                 print "rule1 =", rule1
                 print "rule2 =", rule2
                 intersection = intersect_molecule(rule_list[rule1], rule_list[rule2])
-                print "intersection =", intersection
+                #print "intersection =", intersection
                 # perhaps
-                subtraction = subtraction_wrapper(intersection, header_space)
-                print "subtraction =", subtraction
-                packet = createPacket(subtraction, types)
+                #subtraction = subtraction_wrapper(intersection, header_space)
+                #print "subtraction =", subtraction
+                #packet = createPacket(subtraction, types)
+                packet = createPacket(intersection,header_space,types)
                 #print "packet =", packet
                 sendToInjector(packet)
                 # include the packet and its rule pair
                 header_space.append(rule_list[rule2])
-                print "header_space:"
-                print header_space
+                #print "header_space:"
+                #print header_space
 
                 tu = (rule2, packet)
                 if tu not in pairs:
                     pairs.append(tu)
-                print "pairs =", pairs
+                #print "pairs =", pairs
 
                 #header_space =
                 # update header_space
 
 
         else:
-            print "rule has no ther rule depend on"
-            print "rule1 =", rule1
+            #print "rule has no ther rule depend on"
+            #print "rule1 =", rule1
 
-            subtraction = subtraction_wrapper(rule_list[rule1], header_space)
-            print "subtraction =", subtraction
+            #subtraction = subtraction_wrapper(rule_list[rule1], header_space)
+            #print "subtraction =", subtraction
 
-            packet = createPacket(subtraction, types)
-            #print "packet =", packet
+            #packet = createPacket(subtraction, types)
+            packet = createPacket(rule_list[rule1],header_space,types)
+            print "packet =", packet
             sendToInjector(packet)
 
             tu = (rule1, packet)
             if tu not in pairs:
                 pairs.append(tu)
-            print "pairs =", pairs
+            #print "pairs =", pairs
 
     # should call Qi's module function, comment it for now, print instead
     # sendToInjector(pairs)
@@ -207,10 +286,10 @@ def subtract_atom(a,b):
 
 # called by new_dag_generator
 def intersect_molecule(a,b):
-        print "moleculeA: "
-        print a
-        print "moleculeB: "
-        print b
+        #print "moleculeA: "
+        #print a
+        #print "moleculeB: "
+        #print b
 
 	ans = []
 	for atomA in a:
@@ -312,7 +391,71 @@ def new_rule_parse(types,filename):
 		#print rule
 		rules.append([[rule]])
 	return rules
-# algo 2
+
+def LoadFile(filename):
+    fileHandle = open(filename,'r');
+    content = fileHandle.read()
+    fileHandle.close()
+    return content;
+import json
+def DAGLoader(filename):
+    types = type_parse("typename.txt")
+    f = LoadFile(filename)
+    data = json.loads(f)
+    dag = data["dependency"]
+    ret_dag = {}
+    for dep in dag:
+        dep = dep.split(",")
+        if not ret_dag.has_key(int(dep[0])):
+            ret_dag[int(dep[0])] = []
+        ret_dag[int(dep[0])].append(int(dep[1]))
+    ret_rules = {}
+    rules = data["table"]
+    for line in rules:
+        rule = {}
+        for typ in types:
+            if (not line.has_key(typ)) or (rule.has_key(typ)):
+                continue
+            if typ == "src-ip":
+                dt = line[typ]
+                dt = dt.split('/')
+                ln = int(dt[1])
+                dt = dt[0]
+                dt = dt.split('.')
+                ip = 0
+                for i in dt:
+                    ip <<=  8
+                    ip += int(i)
+                for i in range(0,ln):
+                    if (ip&(1<<(31-i))) != 0:
+                        rule["ipSrc"+str(i)] = 1
+                    else:
+                        rule["ipSrc"+str(i)] = 0
+
+            elif typ == "dst-ip":
+                dt = line[typ]
+                dt = dt.split('/')
+                ln = int(dt[1])
+                dt = dt[0].split('.')
+                ip = 0
+                for i in dt:
+                    ip <<=  8
+                    ip += int(i)
+                for i in range(0,ln):
+                    if (ip&(1<<(31-i))) != 0:
+                        rule["ipDst"+str(i)] = 1
+                    else:
+                        rule["ipDst"+str(i)] = 0
+        rl = []
+        for typ in types:
+            if rule.has_key(typ):
+                rl.append(rule[typ])
+            else:
+                rl.append(-1)
+        ids = int(line["id"])
+        ret_rules[ids] = [[rl]]
+
+    return ret_rules, ret_dag
 def pktGenerator_2(pos, rule_list, types,intersect,log):
     if intersect == None:
         return []
@@ -322,9 +465,9 @@ def pktGenerator_2(pos, rule_list, types,intersect,log):
     ret = []
 
     if pos >= len(rule_list):
-        print "log = ",log
-        print "intersect",intersect
-        ret.append((log,createPacket(intersect,types)))
+        #print "log = ",log
+        #print "intersect",intersect
+        ret.append((log,createPacket(intersect,[],types)))
         return ret
     #for i in range(pos,len(rule_list)):
     i = pos
@@ -339,21 +482,28 @@ def pktGenerator_2(pos, rule_list, types,intersect,log):
         ret += cur
     return ret
 
+
+import sys
 if __name__ == "__main__":
-    f = open("output")
+
+    if len(sys.argv) != 2:
+        print "Usage: python algo.py dag_file"
+        exit(0)
+    dag_file = sys.argv[1]
     types = type_parse("typename.txt")
+
     #print types
 
     #print "len of types =", len(types)
 
     line_count = 1
 
-    rule_list = []
+    rule_list = {}
     edge_list = []
     edge_dict = {}
 
     # data preparation
-    while True:
+    '''while True:
         line = f.readline()
         line = line[:-1]
 
@@ -381,21 +531,21 @@ if __name__ == "__main__":
     rule_data = json.load(data_file)
 
     rule_list = rule_parse(types, rule_data)
-    print "rule_list = ",rule_list
+    #print rule_list'''
 
-    #packetGenerator(edge_dict, rule_list, types)
+    rule_list,edge_dict = DAGLoader(dag_file);
+
     header = []
     for feature in types:
         header.append(-1)
     header = [[header]]
     log = []
     pkts = pktGenerator_2(0,rule_list,types,header,log)
-    #print "packets = ",pkts
+    print pkts
+    #packetGenerator(edge_dict, rule_list, types)
 
     #print rule_list
     #print edge_list
     #print edge_dict
-    f.close()
-    data_file.close()
 
 

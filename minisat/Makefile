@@ -4,11 +4,12 @@
         install-bin clean distclean
 all:	r lr lsh
 	#DEBUG
-	#cp build/dynamic/lib/libminisat.so ./miniSAT.so
-	#python test.py
+	cp build/dynamic/lib/libminisat.so ./miniSAT.so
+	python test.py
 	#
 	#
 	cp build/dynamic/lib/libminisat.so ../lib/miniSAT.so
+	cp build/dynamic/lib/libminisat.so ../probe/miniSAT.so
 
 ## Load Previous Configuration ####################################################################
 

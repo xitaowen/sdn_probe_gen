@@ -1,0 +1,79 @@
+  "port" 
+  "ethSrc" 
+  "ethDst" 
+  "ethTyp"
+  "vlanId"
+  "vlanPcp"
+  "src-ip"
+  "dst-ip"
+  "tcpSrcPort"
+  "tcpDstPort"
+  | "ipSrc0" { SRCIP0 }
+  | "ipSrc1" { SRCIP1 }
+  | "ipSrc2" { SRCIP2 }
+  | "ipSrc3" { SRCIP3 }
+  | "ipSrc4" { SRCIP4 }
+  | "ipSrc5" { SRCIP5 }
+  | "ipSrc6" { SRCIP6 }
+  | "ipSrc7" { SRCIP7 }
+  | "ipSrc8" { SRCIP8 }
+  | "ipSrc9" { SRCIP9 }
+  | "ipSrc10" { SRCIP10 }
+  | "ipSrc1" { SRCIP11 }
+  | "ipSrc12" { SRCIP12 }
+  | "ipSrc13" { SRCIP13 }
+  | "ipSrc14" { SRCIP14 }
+  | "ipSrc15" { SRCIP15 }
+  | "ipSrc16" { SRCIP16 }
+  | "ipSrc17" { SRCIP17 }
+  | "ipSrc18" { SRCIP18 }
+  | "ipSrc19" { SRCIP19 }
+  | "ipSrc20" { SRCIP20 }
+  | "ipSrc21" { SRCIP21 }
+  | "ipSrc22" { SRCIP22 }
+  | "ipSrc23" { SRCIP23 }
+  | "ipSrc24" { SRCIP24 }
+  | "ipSrc25" { SRCIP25 }
+  | "ipSrc26" { SRCIP26 }
+  | "ipSrc27" { SRCIP27 }
+  | "ipSrc28" { SRCIP28 }
+  | "ipSrc29" { SRCIP29 }
+  | "ipSrc30" { SRCIP30 }
+  | "ipSrc31" { SRCIP31 }
+  | "ipDst0" { DSTIP0 }
+  | "ipDst1" { DSTIP1 }
+  | "ipDst2" { DSTIP2 }
+  | "ipDst3" { DSTIP3 }
+  | "ipDst4" { DSTIP4 }
+  | "ipDst5" { DSTIP5 }
+  | "ipDst6" { DSTIP6 }
+  | "ipDst7" { DSTIP7 }
+  | "ipDst8" { DSTIP8 }
+  | "ipDst9" { DSTIP9 }
+  | "ipDst10" { DSTIP10 }
+  | "ipDst11" { DSTIP11 }
+  | "ipDst12" { DSTIP12 }
+  | "ipDst13" { DSTIP13 }
+  | "ipDst14" { DSTIP14 }
+  | "ipDst15" { DSTIP15 }
+  | "ipDst16" { DSTIP16 }
+  | "ipDst17" { DSTIP17 }
+  | "ipDst18" { DSTIP18 }
+  | "ipDst19" { DSTIP19 }
+  | "ipDst20" { DSTIP20 }
+  | "ipDst21" { DSTIP21 }
+  | "ipDst22" { DSTIP22 }
+  | "ipDst23" { DSTIP23 }
+  | "ipDst24" { DSTIP24 }
+  | "ipDst25" { DSTIP25 }
+  | "ipDst26" { DSTIP26 }
+  | "ipDst27" { DSTIP27 }
+  | "ipDst28" { DSTIP28 }
+  | "ipDst29" { DSTIP29 }
+  | "ipDst30" { DSTIP30 }
+  | "ipDst31" { DSTIP31 }
+  | "ipProto" { PROTOCOLTYPE }
+  | "tcpSrcPortHi" { TCPSRCPORTHI }
+  | "tcpSrcPortLo" { TCPSRCPORTLO }
+  | "tcpDstPortHi" { TCPDSTPORTHI }
+  | "tcpDstPortLo" { TCPDSTPORTLO }

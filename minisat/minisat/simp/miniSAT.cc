@@ -198,6 +198,7 @@ miniSAT_solve(PyObject *self, PyObject *args)
     enum { buffer_size = 64*1024 };
     buf = (char*)xrealloc(NULL, buffer_size);
     temp = (char*)xrealloc(NULL, 20);
+    buf[0]=0;
     strcat(buf,"SAT ");
     for (size_t i = 0; i < S.nVars(); i++)
         if (S.model[i] != l_Undef){
