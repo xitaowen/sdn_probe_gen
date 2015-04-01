@@ -45,12 +45,15 @@ def rule_parse(types, rule_data):
 
 import miniSAT
 
-len_type = {}
+len_type = {"src-port":16,"dst-port":16,"src-ip":0,"dst-ip":0}
 def rule2cnf(rule, op, types):
     cur = 0
     ret = ""
+    len_cnf = 0
+    cnf = ""
     for ty in range(0,len(types)):
         typ = types[ty]
+        #print typ
         if len_type.has_key(typ):
             ln = len_type[typ]
         else:
@@ -62,17 +65,23 @@ def rule2cnf(rule, op, types):
         for i in range(0,ln):
             if (dt&(1<<(ln-i-1))) > 0:
                 if op > 0:
-                    ret += " "+str(cur+ln-i)
+                    cnf += " "+str(cur+i+1)+" 0"
+                    len_cnf += 1
                 else:
-                    ret += " "+"-"+str(cur+ln-i)
+                    ret += " "+"-"+str(cur+i+1)
             else:
                 if op < 0:
-                    ret += " "+str(cur+ln-i)
+                    ret += " "+str(cur+i+1)
                 else:
-                    ret += " "+"-"+str(cur+ln-i)
+                    cnf += " "+"-"+str(cur+i+1)+" 0"
+                    len_cnf += 1
         cur += ln
     #print cur
-    return ret
+    if op > 0:
+        return len_cnf,cnf
+    if len(ret) > 0:
+        return 1," "+ret+" 0"
+    return 0,ret
 
 def ans2packet(ans, types):
     cur = 0
@@ -90,7 +99,7 @@ def ans2packet(ans, types):
             if cur+ln-i>= len(ans):
                 ret[typ] += 0
                 continue
-            f = int(ans[cur+ln-i])
+            f = int(ans[cur+i+1])
             if f < 0:
                 ret[typ] += 0
             else:
@@ -98,22 +107,53 @@ def ans2packet(ans, types):
         cur += ln
     return ret
 
+def printip(ip):
+    ret = ""
+    for i in range(0,4):
+        ret += str((ip>>(24-i*8))&0xFF)
+        if i < 3:
+            ret += "."
+    return ret
+
+def printpkt(ans, types):
+    pkt = ans2packet(ans, types)
+    for i in range(0,32):
+        pkt["src-ip"] <<= 1
+        pkt["src-ip"] += pkt["ipSrc"+str(i)]
+        pkt["dst-ip"] <<= 1
+        pkt["dst-ip"] += pkt["ipDst"+str(i)]
+    for typ in len_type:
+        if typ == "src-ip" or typ == "dst-ip":
+            print typ,printip(pkt[typ])," ",
+        else:
+            print typ,pkt[typ]," ",
+    print ""
 
 def createPacket(subtraction, header_space, types):
     if subtraction == None:
         return {}
-    cnf = "p cnf 100 "+str(len(header_space)+1)
+    cnf_head = 0
+    cnf = ""
     rule = subtraction[0][0]
-    cnf += " "+rule2cnf(rule,1,types)+" 0"
+    tmp_len,tmp = rule2cnf(rule,1,types)
+    if tmp_len > 0:
+        cnf_head += tmp_len
+    cnf += tmp
     for header in header_space:
         rule = header[0][0]
-        cnf += " "+rule2cnf(rule,-1,types)+" 0"
-    #print cnf
+        tmp_len,tmp = rule2cnf(rule,-1,types)
+        if tmp_len > 0:
+            cnf_head += tmp_len
+        cnf += tmp
+    cnf_head = "p cnf 200 "+str(cnf_head)
+    cnf = cnf_head+cnf
+    print cnf
     ans = miniSAT.solve(cnf)
-    #print "inter:",subtraction
-    #print "header_space",header_space
+    print "inter:",subtraction
+    print "header_space",header_space
     print "ans:",ans
     ans = ans.split(' ')
+    printpkt(ans,types)
     if ans[0] == 'SAT':
         return ans2packet(ans,types)
     packet = {}
@@ -128,12 +168,37 @@ def findRule(sid, rid):
 def packetGenerator(edge_dict, rule_list, types):
     # containg all pkt, rule paris
     pairs = []
+    dag = {}
+    for rule1 in edge_dict:
+        if not dag.has_key(rule1):
+            dag[rule1] = []
+        for rule2 in edge_dict[rule1]:
+            if not dag.has_key(rule2):
+                dag[rule2] = []
+            dag[rule2].append(rule1)
+
+    dep = copy.deepcopy(dag)
+    #print dag
 
     header_space = []
-    # variable rule1 and rule 2 are int.
+    T = {}
     for rule1 in edge_dict:
-        #print "rule1 =", rule1
-        if edge_dict[rule1]:
+        T[rule1] = []
+        for rule2 in edge_dict[rule1]:
+            T[rule2] = []
+    # variable rule1 and rule 2 are int.
+    while True:
+        rule1 = -1
+        for rule in dag:
+            if len(dag[rule]) == 0:
+                rule1 = rule
+                break;
+        if rule1 == -1:
+            break
+        for rule in dep[rule1]:
+            T[rule1] += T[rule]
+        print "rule1 =", rule1
+        if edge_dict.has_key(rule1):
             #print "rule has other rule to depend on"
             adj_list = edge_dict[rule1]
             #print "adj_list =", adj_list
@@ -152,7 +217,7 @@ def packetGenerator(edge_dict, rule_list, types):
                 #print "packet =", packet
                 sendToInjector(packet)
                 # include the packet and its rule pair
-                header_space.append(rule_list[rule2])
+                T[rule2].append(rule_list[rule2])
                 #print "header_space:"
                 #print header_space
 
@@ -173,7 +238,7 @@ def packetGenerator(edge_dict, rule_list, types):
             #print "subtraction =", subtraction
 
             #packet = createPacket(subtraction, types)
-            packet = createPacket(rule_list[rule1],header_space,types)
+            packet = createPacket(rule_list[rule1],T[rule1],types)
             print "packet =", packet
             sendToInjector(packet)
 
@@ -181,6 +246,12 @@ def packetGenerator(edge_dict, rule_list, types):
             if tu not in pairs:
                 pairs.append(tu)
             #print "pairs =", pairs
+
+        #remove visited rules in dag
+        del dag[rule1]
+        for rule in dag:
+            if rule1 in dag[rule]:
+                dag[rule].remove(rule1)
 
     # should call Qi's module function, comment it for now, print instead
     # sendToInjector(pairs)
@@ -402,6 +473,7 @@ def DAGLoader(filename):
     types = type_parse("typename.txt")
     f = LoadFile(filename)
     data = json.loads(f)
+    #(0,1): rule 1 depends on rule 0
     dag = data["dependency"]
     ret_dag = {}
     for dep in dag:
@@ -446,6 +518,8 @@ def DAGLoader(filename):
                         rule["ipDst"+str(i)] = 1
                     else:
                         rule["ipDst"+str(i)] = 0
+            else:
+                rule[typ] = int(line[typ])
         rl = []
         for typ in types:
             if rule.has_key(typ):

@@ -1,4 +1,3 @@
-  "port" 
   "ethSrc" 
   "ethDst" 
   "ethTyp"
@@ -6,8 +5,8 @@
   "vlanPcp"
   "src-ip"
   "dst-ip"
-  "tcpSrcPort"
-  "tcpDstPort"
+  "src-port"
+  "dst-port"
   | "ipSrc0" { SRCIP0 }
   | "ipSrc1" { SRCIP1 }
   | "ipSrc2" { SRCIP2 }
@@ -19,7 +18,7 @@
   | "ipSrc8" { SRCIP8 }
   | "ipSrc9" { SRCIP9 }
   | "ipSrc10" { SRCIP10 }
-  | "ipSrc1" { SRCIP11 }
+  | "ipSrc11" { SRCIP11 }
   | "ipSrc12" { SRCIP12 }
   | "ipSrc13" { SRCIP13 }
   | "ipSrc14" { SRCIP14 }

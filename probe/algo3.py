@@ -479,8 +479,8 @@ def packetGenerator_3(edge_dict, rule_list, types):
         index = random.randint(0,len(S)-1)
         v1 = S[index][0]
         v2 = S[index][1]
-        #print len(S),index,v1,v2
-        #print VV,EE
+        print len(S),index,v1,v2
+        print VV,EE
         header_space = []
         for edge in EE:
             if edge[0] == v1 or edge[0] == v2:
@@ -498,7 +498,11 @@ def packetGenerator_3(edge_dict, rule_list, types):
             vhit = IssueProbe(pkt,rule_list,v1,v2)
             if not vhit in VV:
                 VV.append(vhit)
-            if vhit == v1 or vhit == v2:
+            if vhit == v1:
+                EE.append([v2,v1])
+                del S[index]
+                break
+            if vhit == v2:
                 EE.append([v1,v2])
                 del S[index]
                 break
