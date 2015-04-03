@@ -38,27 +38,48 @@ namespace Minisat {
 
 class StreamBuffer {
     gzFile         in;
+    const char*    in_buf;
     unsigned char* buf;
     int            pos;
     int            size;
+    int            mode;
 
+    //enum { buffer_size = 64*1024 };
     enum { buffer_size = 64*1024 };
 
     void assureLookahead() {
         if (pos >= size) {
-            pos  = 0;
-            size = gzread(in, buf, buffer_size); } }
+            if(mode == 0){
+                pos  = 0;
+                size = gzread(in, buf, buffer_size); 
+            }
+            else{
+                pos = 0;
+                for(size_t j = 0; j <= strlen(in_buf) && j < buffer_size; ++j)
+                    buf[j] = *(in_buf+j);
+                if(strlen(in_buf) < buffer_size){
+                    size = strlen(in_buf);
+                    in_buf += strlen(in_buf);
+                }
+                else{
+                    size = buffer_size;
+                    in_buf += buffer_size;
+                }
+            }
+        }
+    }
 
 public:
     explicit StreamBuffer(gzFile i) : in(i), pos(0), size(0){
         buf = (unsigned char*)xrealloc(NULL, buffer_size);
+        mode = 0;
         assureLookahead();
     }
     explicit StreamBuffer(const char *i) : pos(0), size(0){
         buf = (unsigned char*)xrealloc(NULL, buffer_size);
-        for(size_t j = 0; j <= strlen(i); ++j)
-            buf[j] = i[j];
-        size = strlen(i);
+        mode = 1;
+        in_buf = i;
+        assureLookahead();
     }
     ~StreamBuffer() { free(buf); }
 

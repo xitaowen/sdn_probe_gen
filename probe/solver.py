@@ -107,7 +107,7 @@ def createPacket(subtraction, header_space, types):
         cnf += tmp
     cnf_head = "p cnf 200 "+str(cnf_head)
     cnf = cnf_head+cnf
-    #print cnf
+    #print len(cnf)
     ans = miniSAT.solve(cnf)
     #print "inter:",subtraction
     #print "header_space",header_space

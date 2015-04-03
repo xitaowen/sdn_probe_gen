@@ -4,6 +4,7 @@ import re
 import copy
 
 import header,solver,parser
+import time
 output_file = open("data_to_injector.txt", 'w')
 
 def pktGenerator(pos, rule_list, rule_dict, types,intersect,log):

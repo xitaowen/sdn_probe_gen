@@ -2,6 +2,7 @@
 import json
 import re
 import copy
+import time
 
 import header,solver,parser
 output_file = open("data_to_injector.txt", 'w')
@@ -9,6 +10,9 @@ output_file = open("data_to_injector.txt", 'w')
 # if rule id goes from 0 to N, and rules are sorted according to their id, works
 def packetGenerator(edge_dict, rule_list, types):
     # containg all pkt, rule paris
+    time_solve = 0.0
+    time_header = 0.0
+    time_total = time.time()
     pairs = []
     dag = {}
     for rule1 in edge_dict:
@@ -24,10 +28,8 @@ def packetGenerator(edge_dict, rule_list, types):
 
     header_space = []
     T = {}
-    for rule1 in edge_dict:
+    for rule1 in rule_list.keys():
         T[rule1] = []
-        for rule2 in edge_dict[rule1]:
-            T[rule2] = []
     # variable rule1 and rule 2 are int.
     while True:
         rule1 = -1
@@ -38,7 +40,8 @@ def packetGenerator(edge_dict, rule_list, types):
         if rule1 == -1:
             break
         for rule in dep[rule1]:
-            T[rule1] += T[rule]
+            if len(T[rule]) > 0:
+                T[rule1] += T[rule]
 
         T[rule1].sort()
         T[rule1] = [x for i, x in enumerate(T[rule1]) if not i or T[rule1][i] != T[rule1][i-1]]
@@ -48,8 +51,17 @@ def packetGenerator(edge_dict, rule_list, types):
             adj_list = edge_dict[rule1]
 
             for rule2 in adj_list:
+                t = time.time()
                 intersection = header.intersect_molecule(rule_list[rule1], rule_list[rule2])
+                if intersection == None:
+                    #print rule1,rule_list[rule1]
+                    #print rule2,rule_list[rule2]
+                    continue
+                time_header += time.time() - t
+                t = time.time()
                 packet = solver.createPacket(intersection,T[rule1],types)
+                print "SAT",time.time() - t
+                time_solve += time.time()-t
                 sendToInjector(packet)
                 # include the packet and its rule pair
                 T[rule2].append(intersection)
@@ -61,7 +73,9 @@ def packetGenerator(edge_dict, rule_list, types):
 
         elif len(dep[rule1]) >= 0:
             #print "rule has no ther rule depend on"
+            t = time.time()
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
+            time_solve += time.time()-t
             sendToInjector(packet)
 
             tu = (rule1, packet)
@@ -73,7 +87,10 @@ def packetGenerator(edge_dict, rule_list, types):
         for rule in dag:
             if rule1 in dag[rule]:
                 dag[rule].remove(rule1)
-
+    time_total = time.time() - time_total
+    print "solver time:",time_solve,time_solve*100/time_total,"%"
+    print "header operation time:",time_header,time_header*100/time_solve,"%"
+    print "Total time:",time_total
     #print pairs
 
 
