@@ -12,6 +12,10 @@ sdn_probe_gen
 |-lib           library.
 |-minisat       sat solver.
 |-probe         packet generation algorithms.
+|--FaulDete.py  algorithm 1
+|--NonaTrou.py  algorithm 2
+|--FullAdap.py  algorithm 3
+|--SemiAdap.py  algorithm 4
 |-Makefile
 
 
@@ -20,5 +24,9 @@ Mini sat is a sat solver which is used to solve sat problem. Since it's written 
     import miniSAT
     miniSAT.solve("p cnf 100 3 1 2 0 -2 3 0 -3 0")
 The input is in CNF format, you can see the details in http://www.domagoj-babic.com/uploads/ResearchProjects/Spear/dimacs-cnf.pdf.
+
+3. Run the Test
+Plz cd in to dictionary probe. Run as "example.py input.json".
+
 
 
