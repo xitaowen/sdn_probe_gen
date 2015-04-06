@@ -47,6 +47,7 @@ def packetGenerator(edge_dict, rule_list, types):
             time.sleep(0.1)
             subtraction = header.subtraction_wrapper(intersection, header_space)
             if subtraction == None:
+                del S[index]
                 break
 
             pkt = solver.createPacket(intersection,header_space,types)
