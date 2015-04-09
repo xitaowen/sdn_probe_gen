@@ -19,10 +19,12 @@ def packetGenerator(edge_dict, rule_list, types):
     S = []
     VV = []
     EE = []
-    for v1 in edge_dict:
-        vset = edge_dict[v1]
-        for v2 in vset:
-            S.append([v1,v2])
+    rules = rule_list.keys()
+    for r1 in range(0,len(rules)):
+        for r2 in range(r1+1,len(rules)):
+            intersection = header.intersect_molecule(rule_list[rules[r1]],rule_list[rules[r2]])
+            if intersection != None:
+                S.append([rules[r1],rules[r2]])
     while len(S) > 0:
         pset = []
         #print len(S),index
@@ -39,8 +41,12 @@ def packetGenerator(edge_dict, rule_list, types):
             T = [intersection,header_space]
             subtraction = header.subtraction_wrapper(intersection, header_space)
             if subtraction == None:
+                S.remove(s)
                 continue
             pkt = solver.createPacket(intersection,header_space,types)
+            if pkt['SAT'] == 'No':
+                S.remove(s)
+                break
             pset.append([v1,v2,pkt])
 
         #IssueProbeSet
@@ -52,7 +58,11 @@ def packetGenerator(edge_dict, rule_list, types):
             vhit = IssueProbe(pkt,rule_list,v1,v2)
             if not vhit in VV:
                 VV.append(vhit)
-            if vhit == v1 or vhit == v2:
+            if vhit == v1:
+                EE.append([v2,v1])
+                S.remove([v1,v2])
+                break
+            if vhit == v2:
                 EE.append([v1,v2])
                 S.remove([v1,v2])
                 break

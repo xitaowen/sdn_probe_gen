@@ -51,6 +51,9 @@ def packetGenerator(edge_dict, rule_list, types):
                 break
 
             pkt = solver.createPacket(intersection,header_space,types)
+            if pkt['SAT'] == 'No':
+                del S[index]
+                break
 
             vhit = IssueProbe(pkt,rule_list,v1,v2)
             print "packet: ",

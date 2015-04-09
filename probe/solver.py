@@ -45,7 +45,7 @@ def rule2cnf(rule, op, types):
 
 def ans2packet(ans, types):
     cur = 0
-    ret = {}
+    ret = {'SAT':'Yes'}
     for ty in range(0,len(types)):
         typ = types[ty]
         if len_type.has_key(typ):
@@ -91,16 +91,26 @@ def printpkt(pkt, types):
 
 def createPacket(subtraction, header_space, types):
     if subtraction == None:
-        return {}
+        return {'SAT':'No'}
+    #transform substraction and header_space to cnf format.
+    #First, substraction - header_space
+    #Second, Substraction is which packet must match. So every certain bit(0 or 1) should be
+    #remains the same. In SAT, each certain bit is new line(for example, 1110** -> x0=1^x1=1^x2=1^x3=0 ).
+
+    #count lines.
     cnf_head = 0
     cnf = ""
     rule = subtraction[0][0]
+    # 1 mean this is a positive line.
     tmp_len,tmp = rule2cnf(rule,1,types)
     if tmp_len > 0:
         cnf_head += tmp_len
     cnf += tmp
+    #Third, there is an - b4 header_space, so header_space = (r1,r2,r3) => -(r1,r2,r3) = -r1^-r2^-r3.
+    #For example rule r1 = 10*, r1 = x0=1^x1=0, so -r1 = (x0=0,x1=1)
     for header in header_space:
         rule = header[0][0]
+        # -1 mean this is a negtive line.
         tmp_len,tmp = rule2cnf(rule,-1,types)
         if tmp_len > 0:
             cnf_head += tmp_len
@@ -108,14 +118,20 @@ def createPacket(subtraction, header_space, types):
     cnf_head = "p cnf 200 "+str(cnf_head)
     cnf = cnf_head+cnf
     #print len(cnf)
+    #
+    #solve the sat
     ans = miniSAT.solve(cnf)
     #print "inter:",subtraction
     #print "header_space",header_space
     #print "ans:",ans
+    #
+    #process the result.
+    #if solved, return "SAT 1 2 -3 ..."
+    #if unsolvable, return "UNSAT"
     ans = ans.split(' ')
     #printpkt(ans,types)
     if ans[0] == 'SAT':
         return ans2packet(ans,types)
-    packet = {}
+    packet = {'SAT':'No'}
     return packet
 
