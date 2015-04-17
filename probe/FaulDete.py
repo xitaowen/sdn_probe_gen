@@ -67,7 +67,8 @@ def packetGenerator(edge_dict, rule_list, types):
                 time_solve += time.time()-t
                 sendToInjector(packet)
                 # include the packet and its rule pair
-                T[rule2].append(intersection)
+                #T[rule2].append(intersection)
+                T[rule2].append(rule_list[rule1])
 
                 tu = (rule2, packet)
                 if tu not in pairs:

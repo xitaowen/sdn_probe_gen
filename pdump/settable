@@ -1,0 +1,6 @@
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s0 in_port=2,actions=output:1,push_mpls:0x8847,set_mpls_label0:,output:3
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s0 in_port=1,actions=output:2,push_mpls:0x8847,set_mpls_label:0,output:3
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s2 in_port=1,actions=output:2,push_mpls:0x8847,set_mpls_label:8,output:3
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s2 in_port=2,actions=output:1,push_mpls:0x8847,set_mpls_label:8,output:3
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s1 in_port=1, actions=output:3,push_mpls:0x8847,set_mpls_label:4,output:4
+mininet> sh ovs-ofctl  -O OpenFlow13 add-flow s1 in_port=3, actions=output:1,push_mpls:0x8847,set_mpls_label:4,output:4
