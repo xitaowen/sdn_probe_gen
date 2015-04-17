@@ -29,4 +29,14 @@ The input is in CNF format, you can see the details in http://www.domagoj-babic.
 Plz cd in to dictionary probe. Run as "example.py input.json".
 
 
+4. Post Card Processor
+Post Card Processor will write a pair of (packet_id, rule_id) into the shared Queue while an experimental packet was detected.
+It should be start running b4 experimental packets were sent. It will automatically quit after its father thread quits.
+
+The experimental packet should attach 4 bytes 0x1f1f1f1f just after the head area to specify itself. After that, 2 bytes should be followed to specify the packet id.
+
+Besides, rule installed on switch should attached with action push_mpls:0x8847,set_mpls_label:rule_id,output:(port to foward packet to post card collector h3). An example rule was followed:
+
+ovs-ofctl  -O OpenFlow13 add-flow s2 in_port=1,actions=output:2,push_mpls:0x8847,set_mpls_label:8,output:3
+
 
