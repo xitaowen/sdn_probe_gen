@@ -99,6 +99,7 @@ def packetGenerator(edge_dict, rule_list, types):
     print "header operation time:",time_header,time_header*100/time_solve,"%"
     print "Total time:",time_total
     #print pairs
+    return pairs
 
 
 def sendToPostcardProcessor(rid,sid, num = 1000):
