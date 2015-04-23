@@ -5,6 +5,7 @@ import time
 import json
 
 import PostCardProcessor
+import PostcardGernerator
 
 class Sender:
     def __init__(self):
@@ -30,6 +31,8 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(dag_file)
+    pcg.start()
 
     #collect postcard
     post = PostCardProcessor.PostCardProcessor('s0-eth3')
