@@ -65,6 +65,32 @@ def ans2packet(ans, types):
             else:
                 ret[typ] += 1
         cur += ln
+    #ipSrc0 ipSrc1 ... -> ip form like "10.0.0.1"
+    tmp = 0
+    ip = ""
+    for i in range(0,32):
+        tmp <<= 1
+        tmp += ret["ipSrc"+str(i)]
+        if (i % 8) == 7:
+            ip += str(tmp)
+            tmp = 0
+            if i != 31:
+                ip += '.'
+    ret["src-ip"] = ip
+
+    #ipDst0 ipDst1 ... -> ip form like "10.0.0.1"
+    tmp = 0
+    ip = ""
+    for i in range(0,32):
+        tmp <<= 1
+        tmp += ret["ipDst"+str(i)]
+        if (i % 8) == 7:
+            ip += str(tmp)
+            tmp = 0
+            if i != 31:
+                ip += '.'
+    ret["Dst-ip"] = ip
+
     return ret
 
 def printip(ip):

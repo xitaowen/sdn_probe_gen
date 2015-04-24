@@ -49,7 +49,7 @@ class PacketProcessor(threading.Thread):
                 pkt = {}
                 for key in rule:
                     pkt[key] = rule[key]
-                self.app.sendpkt(1, pkt)
+                self.app.sendpkt(2, pkt)
             except Exception:
                 print "Exception!"
             finally:
@@ -98,7 +98,8 @@ class SendPkt(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         match = parser.OFPMatch()
-        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
+        actions = []
         self.add_flow(datapath, 0, match, actions)
 
     def add_flow(self, datapath, priority, match, actions):
@@ -114,8 +115,8 @@ class SendPkt(app_manager.RyuApp):
 
     def sendpkt(self, dpid, pkt, port=None):
         print "inside sendpkt"
-        tcp_field = ["tcpSrcPort", "tcpDstPort"]
-        ip_field = ["srcip", "dstip"]
+        tcp_field = ["src-port", "dst-port"]
+        ip_field = ["src-ip", "dst-ip"]
         id_field = ["rid"]
 
         # default value set inside the library file
@@ -151,7 +152,7 @@ class SendPkt(app_manager.RyuApp):
         #pkt.add_protocol(data)
         pkt.add_protocol("\x1f\x1f\x1f\x1f")
         #print struct.pack('>H',pktid)
-        print pktid
+        #print pktid
         pkt.add_protocol(struct.pack('>H',pktid))
         #pkt.add_protocol((pktid&0xff00)>>8)
         #pkt.add_protocol(pktid&0x00ff)
@@ -162,8 +163,8 @@ class SendPkt(app_manager.RyuApp):
         self.pkt_out(datapath, pkt, port)
 
     # diaoyong
-    #@set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    #def pkt_in(self, ev):
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    def pkt_in(self, ev):
 
         '''
         pkt = {}
@@ -178,7 +179,7 @@ class SendPkt(app_manager.RyuApp):
         for line in line_list:
             match = re.search(r"\{'([a-z]+)': (\d)\}", line)
         '''
-        #print "inside pkt_in"
+        print "inside pkt_in"
         #data_file = open('/home/ubuntu/our_apps/probe/data_to_injector.txt', 'r')
         #rule_data = json.load(data_file)
 
