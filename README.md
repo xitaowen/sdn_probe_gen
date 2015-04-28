@@ -3,7 +3,8 @@ Sections:
 
 1)File structure
 2)miniSAT
-
+3)Run the Test
+4)Postcard processor
 
 
 Content:
@@ -19,17 +20,26 @@ sdn_probe_gen
 |-Makefile
 
 
-2. miniSAT
+2) miniSAT
 Mini sat is a sat solver which is used to solve sat problem. Since it's written by C/C++, a python extention was produced as lib/miniSAT.so. The source code located in minisat/minisat/simp/miniSAT.cc. To use miniSAT.so in python, an example was followed:
     import miniSAT
     miniSAT.solve("p cnf 100 3 1 2 0 -2 3 0 -3 0")
 The input is in CNF format, you can see the details in http://www.domagoj-babic.com/uploads/ResearchProjects/Spear/dimacs-cnf.pdf.
 
-3. Run the Test
-Plz cd in to dictionary probe. Run as "example.py input.json".
+3) Run the Test
+
+Before running the test, experiment network should be set OK.
+First, start the mininet:
+    sudo mn --custom probe/topo-2sw-2host.py --topo mytopo --mac --switch ovsk,protocols=OpenFlow13 --controller=remote
+
+Second, start the ryu controller:
+    ./ryu/bin/ryu-manager ./probe/send_pkt.py
+
+Third, launch a single test:
+    sudo python ./probe/launcher.py ./test/small-1.json
 
 
-4. Post Card Processor
+4) Post Card Processor
 Post Card Processor will write a pair of (packet_id, rule_id) into the shared Queue while an experimental packet was detected.
 It should be start running b4 experimental packets were sent. It will automatically quit after its father thread quits.
 

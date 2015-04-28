@@ -59,23 +59,25 @@ def packetGenerator(edge_dict, rule_list, types):
                     continue
                 time_header += time.time() - t
                 t = time.time()
+                #print rule1,rule2
                 packet = solver.createPacket(intersection,T[rule1],types)
+                #print packet
                 if packet['SAT'] == 'No':
                     print "Dependency Error"
                     exit(0)
-                print "SAT",time.time() - t
+                #print "SAT",time.time() - t
                 time_solve += time.time()-t
                 sendToInjector(packet)
                 # include the packet and its rule pair
-                #T[rule2].append(intersection)
-                T[rule2].append(rule_list[rule1])
+                T[rule2].append(intersection)
+                #T[rule2].append(rule_list[rule1])
 
-                tu = (rule2, packet)
+                tu = (rule1, packet)
                 if tu not in pairs:
                     pairs.append(tu)
 
 
-        elif len(dep[rule1]) >= 0:
+        elif len(dep[rule1]) == 0:
             #print "rule has no ther rule depend on"
             t = time.time()
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
@@ -122,7 +124,14 @@ if __name__ == "__main__":
     #print rule_list
     #print edge_dict
 
-    packetGenerator(edge_dict, rule_list, types)
+    pairs = packetGenerator(edge_dict, rule_list, types)
+    for pair in pairs:
+        #print pair
+        rid = pair[0]
+        pkt = pair[1]
+        print rid
+        for typ in ['src-ip','dst-ip','src-port','dst-port']:
+            print typ,pkt[typ]
 
 
 

@@ -9,8 +9,8 @@ import struct
 
 import threading
 import Queue
-
 postCardQueue = Queue.Queue()
+
 class PostCardProcessor(threading.Thread):
     #start from function run.
     def __init__(self, name):
@@ -31,6 +31,7 @@ class PostCardProcessor(threading.Thread):
         try:
             while 1:
                 p.dispatch(1, self.filter_packet)
+                isReady = True
         except KeyboardInterrupt:
             print '%s' % sys.exc_type
             print 'shutting down'
@@ -60,27 +61,30 @@ class PostCardProcessor(threading.Thread):
         #parse packetid and rule id
         d['ruleid'] = 0
 
-        ed = len(d)
         if d['total_len'] - d['header_len'] < 6:
             d['usertype'] = 0
             d['packetid'] = 0
             return d
-        st = 4*d['header_len']
-        ed = 4*d['header_len']+4
-        d['usertype']=socket.ntohl(struct.unpack('I',s[st:ed])[0])
-        st = ed
-        ed = st + 2
+        ed = d['total_len']
+        #ed = len(s) + 1
+        st = ed - 2
+        #print d['total_len'],d['header_len'],ed
         d['packetid']=socket.ntohs(struct.unpack('H',s[st:ed])[0])
+
+        ed = st
+        st = ed - 4
+        d['usertype']=socket.ntohl(struct.unpack('I',s[st:ed])[0])
         return d
 
     def decode_mpls_packet(self,s):
         #decode mpls packet.
         d = self.decode_ip_packet(s[4:])
-        d['ruleid'] = socket.ntohl(struct.unpack('I',s[0:4])[0]>>12)
+        d['ruleid'] = socket.ntohl(struct.unpack('I',s[0:4])[0])>>12
+        #d['ruleid'] = struct.unpack('I',s[0:4])[0]>>12
         return d
 
     def sendToLauncher(self,pid,rid):
-        print "put post card into shared queue:",pid,rid
+        #print "put post card into shared queue:",pid,rid
         postCardQueue.put((pid,rid))
 
     def filter_packet(self,pktlen, data, timestamp):
@@ -88,14 +92,21 @@ class PostCardProcessor(threading.Thread):
             return
         if data[12:14] == '\x88\x47':
             decoded = self.decode_mpls_packet(data[14:])
-            print "usertype:",decoded['usertype']
-            print "ruleid:",decoded['ruleid']
-            if decoded['usertype'] == '\x1f\x1f\x1f\x1f':
+            #print "usertype:",decoded['usertype']
+            #print "ruleid:",decoded['ruleid']
+            #if decoded['usertype'] == '\x1f\x1f\x1f\x1f':
+            if decoded['usertype'] == 0x1f1f1f1f:
             #if decoded['usertype'] == 3369445979:
                 #a test packet found.
                 self.sendToLauncher(decoded['packetid'],decoded['ruleid'])
+        elif data[12:14] == '\x08\x00':
+            decoded = self.decode_ip_packet(data[14:])
+            #print "usertype:",decoded['usertype']
+            #print "ruleid:",decoded['ruleid']
 
 if __name__ == "__main__":
-    post = PostCardProcessor('s0-eth3')
+    post = PostCardProcessor('s1-eth4')
     post.start()
+    print postCardQueue.get()
+    print postCardQueue.qsize()
     time.sleep(100)

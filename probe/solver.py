@@ -56,7 +56,7 @@ def ans2packet(ans, types):
         for i in range(0,ln):
             ret[typ] <<= 1
             #print cur+ln-i
-            if cur+ln-i>= len(ans)-1:
+            if cur+ln-i > len(ans)-1:
                 ret[typ] += 0
                 continue
             f = int(ans[cur+i+1])
@@ -89,7 +89,7 @@ def ans2packet(ans, types):
             tmp = 0
             if i != 31:
                 ip += '.'
-    ret["Dst-ip"] = ip
+    ret["dst-ip"] = ip
 
     return ret
 
@@ -146,7 +146,9 @@ def createPacket(subtraction, header_space, types):
     #print len(cnf)
     #
     #solve the sat
+    #print cnf
     ans = miniSAT.solve(cnf)
+    #print ans
     #print "inter:",subtraction
     #print "header_space",header_space
     #print "ans:",ans
