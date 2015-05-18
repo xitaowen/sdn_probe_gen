@@ -40,7 +40,10 @@ def DAGLoader(filename):
             if typ == "src-ip":
                 dt = line[typ]
                 dt = dt.split('/')
-                ln = int(dt[1])
+                if len(dt) == 1:
+                    ln = 32
+                else:
+                    ln = int(dt[1])
                 dt = dt[0]
                 dt = dt.split('.')
                 ip = 0
@@ -84,5 +87,5 @@ def DAGLoader(filename):
     edges = 0
     for r1 in ret_dag:
         edges += len(ret_dag[r1])
-    print "nodes,edges:",len(ret_dag),edges
+    #print "nodes,edges:",len(ret_dag),edges
     return ret_rules, ret_dag

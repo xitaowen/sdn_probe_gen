@@ -10,7 +10,7 @@ output_file = open("data_to_injector.txt", 'w')
 # if rule id goes from 0 to N, and rules are sorted according to their id, works
 def packetGenerator(edge_dict, rule_list, types):
     # containg all pkt, rule paris
-    time_solve = 0.0
+    time_solve = 0.0000000001
     time_header = 0.0
     time_total = time.time()
     pairs = []
@@ -64,7 +64,7 @@ def packetGenerator(edge_dict, rule_list, types):
                 #print packet
                 if packet['SAT'] == 'No':
                     print "Dependency Error"
-                    exit(0)
+                    return pairs
                 #print "SAT",time.time() - t
                 time_solve += time.time()-t
                 sendToInjector(packet)
@@ -76,6 +76,19 @@ def packetGenerator(edge_dict, rule_list, types):
                 if tu not in pairs:
                     pairs.append(tu)
 
+        elif len(dep[rule1]) > 0:
+            #print "rule has no ther rule depend on"
+            t = time.time()
+            packet = solver.createPacket(rule_list[rule1],T[rule1],types)
+            if packet['SAT'] == 'No':
+                #print "Dependency Error"
+                return pairs
+            time_solve += time.time()-t
+            sendToInjector(packet)
+
+            tu = (rule1, packet)
+            if tu not in pairs:
+                pairs.append(tu)
 
         elif len(dep[rule1]) == 0:
             #print "rule has no ther rule depend on"
@@ -83,7 +96,7 @@ def packetGenerator(edge_dict, rule_list, types):
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
             if packet['SAT'] == 'No':
                 print "Dependency Error"
-                exit(0)
+                return pairs
             time_solve += time.time()-t
             sendToInjector(packet)
 
@@ -97,9 +110,9 @@ def packetGenerator(edge_dict, rule_list, types):
             if rule1 in dag[rule]:
                 dag[rule].remove(rule1)
     time_total = time.time() - time_total
-    print "solver time:",time_solve,time_solve*100/time_total,"%"
-    print "header operation time:",time_header,time_header*100/time_solve,"%"
-    print "Total time:",time_total
+    #print "solver time:",time_solve,time_solve*100/time_total,"%"
+    #print "header operation time:",time_header,time_header*100/time_solve,"%"
+    #print "Total time:",time_total
     #print pairs
     return pairs
 

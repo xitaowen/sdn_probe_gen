@@ -10,6 +10,7 @@ import struct
 import threading
 import Queue
 postCardQueue = Queue.Queue()
+Flag = True
 
 class PostCardProcessor(threading.Thread):
     #start from function run.
@@ -21,6 +22,8 @@ class PostCardProcessor(threading.Thread):
         self.setDaemon(True)
 
     def run(self):
+        global Flag
+        Flag = True
         p = pcap.pcapObject()
         dev = self.dev
         #net, mask = pcap.lookupnet(dev)
@@ -29,7 +32,7 @@ class PostCardProcessor(threading.Thread):
         p.setfilter('mpls', 0, 0)
 
         try:
-            while 1:
+            while Flag:
                 p.dispatch(1, self.filter_packet)
                 isReady = True
         except KeyboardInterrupt:

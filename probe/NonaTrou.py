@@ -40,8 +40,8 @@ def sendToPostcardProcessor(rid,sid, num = 1000):
     pass
 
 def sendToInjector(packet, switch_id = 1, num = 1000):
-    output_file.write(str(packet))
-    output_file.write('\n')
+    pass#output_file.write(str(packet))
+    #output_file.write('\n')
 
 import sys
 if __name__ == "__main__":
@@ -63,6 +63,6 @@ if __name__ == "__main__":
     header_space = [[header_space]]
     log = []
     pkts = pktGenerator(0,rule_list,rule_dict,types,header_space,log)
-
+    print pkts
 
 
