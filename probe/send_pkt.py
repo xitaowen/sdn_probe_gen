@@ -117,7 +117,7 @@ class SendPkt(app_manager.RyuApp):
         print "inside sendpkt"
         tcp_field = ["src-port", "dst-port"]
         ip_field = ["src-ip", "dst-ip"]
-        id_field = ["rid"]
+        id_field = ["pid"]
 
         # default value set inside the library file
         srcip = "10.0.0.1"

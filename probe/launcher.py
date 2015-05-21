@@ -33,13 +33,15 @@ def launcherA(dag_file):
     pcg.start()
 
     #collect postcard
-    post = PostCardProcessor('s1-eth4')
-    post.start()
+    #post = PostCardProcessor('s1-eth4')
+    #post.start()
+    PostCardProcessor.Start()
     time.sleep(0.1)
     #logging.info("1# start to collect %.8f" %time.time())
 
     #start to generate packets
-    delta = time.time()
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
 
     import parser, FaulDete
     types = parser.type_parse("typename.txt")
@@ -49,15 +51,17 @@ def launcherA(dag_file):
 
     #send the packets
     #logging.info("3# packets flushed to datapath %.8f" %time.time())
+    TimeLog.GetInstance().addCalc()
     sender = Sender()
     pid2rid = {}
     for i,pair in enumerate(pairs):
         rid = pair[0]
         pkt = pair[1]
-        pkt['rid'] = i
+        pkt['pid'] = i
         pid2rid[i] = rid
         #logging.debug("10# pid to rid: %d - %d." % (i,rid))
         sender.send(pkt)
+    TimeLog.GetInstance().addSend()
 
 
     #process with the postcard
@@ -67,20 +71,22 @@ def launcherA(dag_file):
     while True:
         #print postCardQueue.qsize()
         try:
+            TimeLog.GetInstance().addTotal()
             card = postCardQueue.get(True,TIME_WAIT)
+            TimeLog.GetInstance().clock()
             #print card
         except Exception:
             #logging.warn("Post Card Queue is empty.")
             if len(pid2rid) > 0:
-                logging.info("55#Failed!")
-                print "Failed!"
+                #logging.info("55#Failed!")
+                print "Failed!",TimeLog.GetInstance().getCost()
                 flag = False
-                return flag,time.time()-delta-TIME_WAIT
+                return flag, TimeLog.GetInstance().getCost()
             else:
-                logging.info("56#Success!")
-                print "Success!"
+                #logging.info("56#Success!")
+                print "Success!",TimeLog.GetInstance().getCost()
                 flag = True
-                return flag,time.time()-delta-TIME_WAIT
+                return flag, TimeLog.GetInstance().getCost()
             break
         pid = card[0]
         rid = card[1]
@@ -89,19 +95,23 @@ def launcherA(dag_file):
             if rid == pid2rid[pid]:
                 matched += 1
                 pid2rid.pop(pid)
-                logging.debug("11# actually, Y pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #logging.debug("11# actually, Y pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
             else:
                 unmatch += 1
                 #logging.info("55#Unfinished!")
-                logging.warn("11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #logging.warn("11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #print "11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid)
                 pkt = pairs[pid][1]
                 warn = ""
                 for typ in ['src-ip','dst-ip','src-port','dst-port']:
                     warn += typ+":"+str(pkt[typ])+";"
-                logging.warn("12#"+warn)
+                #logging.warn("12#"+warn)
                 #break
-    logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
-    logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
+                print "Failed!",TimeLog.GetInstance().getCost()
+                flag = False
+                return flag,time.time()-delta-TIME_WAIT
+    #logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
+    #logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
     print "Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) 
     print "57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT)
     Flag = False
@@ -120,18 +130,21 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
     pcg.start()
 
     #collect postcard
-    post = PostCardProcessor('s1-eth4')
-    post.start()
+    #post = PostCardProcessor('s1-eth4')
+    #post.start()
+    PostCardProcessor.Start()
     time.sleep(0.1)
     #logging.info("1# start to collect %.8f" %time.time())
 
     #start to generate packets
-    delta = time.time()
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
 
     import parser, FaulDete
     types = parser.type_parse("typename.txt")
     rule_list,edge_dict = parser.DAGLoader(dag_file);
     pairs = FaulDete.packetGenerator(edge_dict, rule_list, types)
+    TimeLog.GetInstance().addCalc()
     #logging.info("2# packets generated %.8f" %time.time())
 
     #send the packets
@@ -141,10 +154,11 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
     for i,pair in enumerate(pairs):
         rid = pair[0]
         pkt = pair[1]
-        pkt['rid'] = i
+        pkt['pid'] = i
         pid2rid[i] = rid
         #logging.debug("10# pid to rid: %d - %d." % (i,rid))
         sender.send(pkt)
+    TimeLog.GetInstance().addSend()
 
 
     #process with the postcard
@@ -154,19 +168,20 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
     while True:
         #print postCardQueue.qsize()
         try:
+            TimeLog.GetInstance().addTotal()
             card = postCardQueue.get(True,TIME_WAIT)
+            TimeLog.GetInstance().clock()
             #print card
         except Exception:
             #logging.warn("Post Card Queue is empty.")
             if len(pid2rid) > 0:
-                print "Failed!"
+                print "Failed!",TimeLog.GetInstance().getCost()
                 flag = False
-                return flag,time.time()-delta-TIME_WAIT
+                return flag,TimeLog.GetInstance().getCost()
             else:
-                logging.info("56#Success!")
-                print "Success!"
+                print "Success!",TimeLog.GetInstance().getCost()
                 flag = True
-                return flag,time.time()-delta-TIME_WAIT
+                return flag,TimeLog.GetInstance().getCost()
             break
         pid = card[0]
         rid = card[1]
@@ -175,19 +190,23 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
             if rid == pid2rid[pid]:
                 matched += 1
                 pid2rid.pop(pid)
-                logging.debug("11# actually, Y pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #logging.debug("11# actually, Y pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
             else:
                 unmatch += 1
                 #logging.info("55#Unfinished!")
-                logging.warn("11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #logging.warn("11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
+                #print "11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid)
                 pkt = pairs[pid][1]
                 warn = ""
                 for typ in ['src-ip','dst-ip','src-port','dst-port']:
                     warn += typ+":"+str(pkt[typ])+";"
-                logging.warn("12#"+warn)
+                #logging.warn("12#"+warn)
                 #break
-    logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
-    logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
+                print "Failed!",TimeLog.GetInstance().getCost()
+                flag = False
+                return flag,TimeLog.GetInstance().getCost()
+    #logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
+    #logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
     Flag = False
     return flag,time.time()-delta-TIME_WAIT
 
@@ -200,81 +219,157 @@ def launcherC(dag_file):
     logging.basicConfig(level=logging.WARNING)
     #logging.basicConfig(level=logging.ERROR)
 
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
     #generate rules and install them on switch 1
     pcg = PostcardGernerator.PostcardGernerator(dag_file)
     pcg.start()
 
     #collect postcard
-    post = PostCardProcessor('s1-eth4')
-    post.start()
+    #post = PostCardProcessor('s1-eth4')
+    #post.start()
+    PostCardProcessor.Start()
     time.sleep(1)
     #logging.info("1# start to collect %.8f" %time.time())
 
     #start to generate packets
-    delta = time.time()
+    TimeLog.GetInstance().clock()
 
     import parser, FullAdap
     types = parser.type_parse("typename.txt")
     rule_list,edge_dict = parser.DAGLoader(dag_file);
     flag = FullAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
     if flag == False:
-        print "Failed!"
+        print "Failed!",TimeLog.GetInstance().getCost()
     elif flag == True:
-        print "Success!"
+        print "Success!",TimeLog.GetInstance().getCost()
     else:
-        print "Unexpected!"
+        print "Unexpected!",TimeLog.GetInstance().getCost()
     Flag = False
-    return flag,time.time()-delta-TIME_WAIT
-    #logging.info("2# packets generated %.8f" %time.time())
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+    #return flag,time.time()-delta-TIME_WAIT
 
-    #send the packets
-    #logging.info("3# packets flushed to datapath %.8f" %time.time())
-    sender = Sender()
-    pid2rid = {}
-    for i,pair in enumerate(pairs):
-        rid = pair[0]
-        pkt = pair[1]
-        pkt['rid'] = i
-        pid2rid[i] = rid
-        #logging.debug("10# pid to rid: %d - %d." % (i,rid))
-        sender.send(pkt)
+def launcherCWithWrongTable(dag_file, wrong_dag):
 
+    #set the log mode
+    #logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
+    #logging.basicConfig(level=logging.ERROR)
 
-    #process with the postcard
-    matched = 0
-    unmatch = 0
-    flag = True
-    while True:
-        #print postCardQueue.qsize()
-        try:
-            card = postCardQueue.get(True,TIME_WAIT)
-            #print card
-        except Exception:
-            #logging.warn("Post Card Queue is empty.")
-            if len(pid2rid) > 0:
-                logging.info("55#Failed!")
-                print "Failed!"
-                flag = False
-                return flag,time.time()-delta-TIME_WAIT
-            else:
-                logging.info("56#Success!")
-                print "Success!"
-                flag = True
-                return flag,time.time()-delta-TIME_WAIT
-            break
-        pid = card[0]
-        rid = card[1]
-        if pid in pid2rid:
-            rrid = pid2rid[pid]
-            if rid == pid2rid[pid]:
-                matched += 1
-                pid2rid.pop(pid)
-                logging.debug("11# actually, Y pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
-            else:
-                unmatch += 1
-                #logging.info("55#Unfinished!")
-                logging.warn("11# actually, N pid to rid, should match: %d - %d - %d." %(pid,rid,rrid))
-                pkt = pairs[pid][1]
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(wrong_dag)
+    pcg.start()
+
+    #collect postcard
+    #post = PostCardProcessor('s1-eth4')
+    PostCardProcessor.Start()
+    #post.start()
+    time.sleep(1)
+    #logging.info("1# start to collect %.8f" %time.time())
+
+    #start to generate packets
+    TimeLog.GetInstance().clock()
+
+    import parser, FullAdap
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    flag = FullAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
+    if flag == False:
+        print "Failed!",TimeLog.GetInstance().getCost()
+    elif flag == True:
+        print "Success!",TimeLog.GetInstance().getCost()
+    else:
+        print "Unexpected!",TimeLog.GetInstance().getCost()
+    Flag = False
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+    #return flag,time.time()-delta-TIME_WAIT
+
+def launcherD(dag_file):
+
+    #set the log mode
+    #logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
+    #logging.basicConfig(level=logging.ERROR)
+
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(dag_file)
+    pcg.start()
+
+    #collect postcard
+    #post = PostCardProcessor('s1-eth4')
+    #post.start()
+    PostCardProcessor.Start()
+    time.sleep(1)
+    #logging.info("1# start to collect %.8f" %time.time())
+
+    #start to generate packets
+    TimeLog.GetInstance().clock()
+
+    import parser, SemiAdap
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    flag = SemiAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
+    if flag == False:
+        print "Failed!",TimeLog.GetInstance().getCost()
+    elif flag == True:
+        print "Success!",TimeLog.GetInstance().getCost()
+    else:
+        print "Unexpected!",TimeLog.GetInstance().getCost()
+    Flag = False
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+    #return flag,time.time()-delta-TIME_WAIT
+
+def launcherDWithWrongTable(dag_file, wrong_dag):
+
+    #set the log mode
+    #logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
+    #logging.basicConfig(level=logging.ERROR)
+
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(wrong_dag)
+    pcg.start()
+
+    #collect postcard
+    #post = PostCardProcessor('s1-eth4')
+    PostCardProcessor.Start()
+    #post.start()
+    time.sleep(1)
+    #logging.info("1# start to collect %.8f" %time.time())
+
+    #start to generate packets
+    TimeLog.GetInstance().clock()
+
+    import parser, FullAdap
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    flag = FullAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
+    if flag == False:
+        print "Failed!",TimeLog.GetInstance().getCost()
+    elif flag == True:
+        print "Success!",TimeLog.GetInstance().getCost()
+    else:
+        print "Unexpected!",TimeLog.GetInstance().getCost()
+    Flag = False
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+    #return flag,time.time()-delta-TIME_WAIT
+
 if __name__ == "__main__":
     #parse the input arguments
     if len(sys.argv) != 2:
@@ -282,5 +377,12 @@ if __name__ == "__main__":
         exit(0)
     dag_file = sys.argv[1]
     #launcherA(dag_file)
-    launcherC(dag_file)
+    #launcherAWithWrongTable(dag_file,dag_file+".miss")
+    #launcherAWithWrongTable(dag_file,dag_file+".order")
+    #launcherC(dag_file)
+    #launcherCWithWrongTable(dag_file,dag_file+".miss")
+    #launcherCWithWrongTable(dag_file,dag_file+".order")
+    launcherD(dag_file)
+    #launcherDWithWrongTable(dag_file,dag_file+".miss")
+    #launcherDWithWrongTable(dag_file,dag_file+".order")
 

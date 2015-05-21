@@ -56,7 +56,7 @@ def ans2packet(ans, types):
         for i in range(0,ln):
             ret[typ] <<= 1
             #print cur+ln-i
-            if cur+ln-i > len(ans)-1:
+            if cur+ln-i > len(ans)-1 or len(ans[cur+i+1]) <= 0:
                 ret[typ] += 0
                 continue
             f = int(ans[cur+i+1])
@@ -159,6 +159,7 @@ def createPacket(subtraction, header_space, types):
     ans = ans.split(' ')
     #printpkt(ans,types)
     if ans[0] == 'SAT':
+        #print ans
         return ans2packet(ans,types)
     packet = {'SAT':'No'}
     return packet

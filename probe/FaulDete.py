@@ -5,16 +5,16 @@ import copy
 import time
 
 import header,solver,parser
+from timelog import TimeLog
 output_file = open("data_to_injector.txt", 'w')
 
 # if rule id goes from 0 to N, and rules are sorted according to their id, works
 def packetGenerator(edge_dict, rule_list, types):
     # containg all pkt, rule paris
-    time_solve = 0.0000000001
-    time_header = 0.0
-    time_total = time.time()
     pairs = []
     dag = {}
+    for rule in rule_list:
+        dag[rule] = []
     for rule1 in edge_dict:
         if not dag.has_key(rule1):
             dag[rule1] = []
@@ -36,7 +36,7 @@ def packetGenerator(edge_dict, rule_list, types):
         for rule in dag:
             if len(dag[rule]) == 0:
                 rule1 = rule
-                break;
+                break
         if rule1 == -1:
             break
         for rule in dep[rule1]:
@@ -51,22 +51,19 @@ def packetGenerator(edge_dict, rule_list, types):
             adj_list = edge_dict[rule1]
 
             for rule2 in adj_list:
-                t = time.time()
                 intersection = header.intersect_molecule(rule_list[rule1], rule_list[rule2])
                 if intersection == None:
                     #print rule1,rule_list[rule1]
                     #print rule2,rule_list[rule2]
                     continue
-                time_header += time.time() - t
-                t = time.time()
                 #print rule1,rule2
+                TimeLog.GetInstance().addCalc()
                 packet = solver.createPacket(intersection,T[rule1],types)
+                TimeLog.GetInstance().addSolver()
                 #print packet
                 if packet['SAT'] == 'No':
                     print "Dependency Error"
                     return pairs
-                #print "SAT",time.time() - t
-                time_solve += time.time()-t
                 sendToInjector(packet)
                 # include the packet and its rule pair
                 T[rule2].append(intersection)
@@ -78,12 +75,12 @@ def packetGenerator(edge_dict, rule_list, types):
 
         elif len(dep[rule1]) > 0:
             #print "rule has no ther rule depend on"
-            t = time.time()
+            TimeLog.GetInstance().addCalc()
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
+            TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
                 #print "Dependency Error"
                 return pairs
-            time_solve += time.time()-t
             sendToInjector(packet)
 
             tu = (rule1, packet)
@@ -92,12 +89,12 @@ def packetGenerator(edge_dict, rule_list, types):
 
         elif len(dep[rule1]) == 0:
             #print "rule has no ther rule depend on"
-            t = time.time()
+            TimeLog.GetInstance().addCalc()
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
+            TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
                 print "Dependency Error"
                 return pairs
-            time_solve += time.time()-t
             sendToInjector(packet)
 
             tu = (rule1, packet)
@@ -109,11 +106,8 @@ def packetGenerator(edge_dict, rule_list, types):
         for rule in dag:
             if rule1 in dag[rule]:
                 dag[rule].remove(rule1)
-    time_total = time.time() - time_total
-    #print "solver time:",time_solve,time_solve*100/time_total,"%"
-    #print "header operation time:",time_header,time_header*100/time_solve,"%"
-    #print "Total time:",time_total
     #print pairs
+    TimeLog.GetInstance().addCalc()
     return pairs
 
 

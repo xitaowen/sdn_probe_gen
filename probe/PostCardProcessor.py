@@ -13,6 +13,23 @@ postCardQueue = Queue.Queue()
 Flag = True
 
 class PostCardProcessor(threading.Thread):
+    instance = None
+    mutex = threading.Lock()
+
+    @staticmethod
+    def GetInstance():
+        if PostCardProcessor.instance == None:
+            PostCardProcessor.mutex.acquire()
+            if PostCardProcessor.instance == None:
+                PostCardProcessor.instance = PostCardProcessor('s1-eth4')
+                PostCardProcessor.instance.start()
+            PostCardProcessor.mutex.release()
+        return PostCardProcessor.instance
+    @staticmethod
+    def Start():
+        PostCardProcessor.GetInstance()
+        while not postCardQueue.empty():
+            postCardQueue.get()
     #start from function run.
     def __init__(self, name):
         threading.Thread.__init__(self)
@@ -32,7 +49,7 @@ class PostCardProcessor(threading.Thread):
         p.setfilter('mpls', 0, 0)
 
         try:
-            while Flag:
+            while True:
                 p.dispatch(1, self.filter_packet)
                 isReady = True
         except KeyboardInterrupt:
