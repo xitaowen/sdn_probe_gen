@@ -20,7 +20,7 @@ class Sender:
 
 import time,random
 sender = Sender()
-TIME_WAIT = 1 
+TIME_WAIT = 1
 
 postCardQueue = []
 Pid = 0
@@ -54,7 +54,7 @@ def packetGenerator(edge_dict, rule_list, types, q):
 
     global Pid
     Pid = 0
-    
+
     TimeLog.GetInstance().addTotal()
 
     V = rule_list.keys()
@@ -120,7 +120,7 @@ def packetGenerator(edge_dict, rule_list, types, q):
             TimeLog.GetInstance().addSend()
             if vhit == -1:
                 return False
-            
+
             #solver.printpkt(pkt,types)
             if vhit >= 0 and not vhit in VV:
                 VV.append(vhit)
