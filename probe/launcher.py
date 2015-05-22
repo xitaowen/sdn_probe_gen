@@ -73,9 +73,9 @@ def launcherA(dag_file):
         try:
             TimeLog.GetInstance().addTotal()
             card = postCardQueue.get(True,TIME_WAIT)
-            TimeLog.GetInstance().clock()
             #print card
         except Exception:
+            TimeLog.GetInstance().clock()
             #logging.warn("Post Card Queue is empty.")
             if len(pid2rid) > 0:
                 #logging.info("55#Failed!")
@@ -170,9 +170,9 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
         try:
             TimeLog.GetInstance().addTotal()
             card = postCardQueue.get(True,TIME_WAIT)
-            TimeLog.GetInstance().clock()
             #print card
         except Exception:
+            TimeLog.GetInstance().clock()
             #logging.warn("Post Card Queue is empty.")
             if len(pid2rid) > 0:
                 print "Failed!",TimeLog.GetInstance().getCost()
@@ -355,10 +355,10 @@ def launcherDWithWrongTable(dag_file, wrong_dag):
     #start to generate packets
     TimeLog.GetInstance().clock()
 
-    import parser, FullAdap
+    import parser, SemiAdap
     types = parser.type_parse("typename.txt")
     rule_list,edge_dict = parser.DAGLoader(dag_file);
-    flag = FullAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
+    flag = SemiAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue)
     if flag == False:
         print "Failed!",TimeLog.GetInstance().getCost()
     elif flag == True:

@@ -62,17 +62,23 @@ if __name__ == "__main__":
                 ret = launcher.launcherA("./data/"+name)
             elif option == "full-adapt":
                 ret = launcher.launcherC("./data/"+name)
+            elif option == "semi-adapt":
+                ret = launcher.launcherD("./data/"+name)
         elif mode == "1":
             if option == "fault":
                 ret = launcher.launcherAWithWrongTable("./data/"+name,"./data/"+name+".miss")
             elif option == "full-adapt":
                 ret = launcher.launcherCWithWrongTable("./data/"+name,"./data/"+name+".miss")
+            elif option == "semi-adapt":
+                ret = launcher.launcherDWithWrongTable("./data/"+name,"./data/"+name+".miss")
             pass
         elif mode == "2":
             if option == "fault":
                 ret = launcher.launcherAWithWrongTable("./data/"+name,"./data/"+name +".order")
             elif option == "full-adapt":
                 ret = launcher.launcherCWithWrongTable("./data/"+name,"./data/"+name +".order")
+            elif option == "semi-adapt":
+                ret = launcher.launcherDWithWrongTable("./data/"+name,"./data/"+name +".order")
             pass
         if ret[0] == True:
             right += 1

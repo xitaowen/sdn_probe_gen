@@ -34,8 +34,8 @@ def IssueProbe(pkt, rules,v1,v2):
     sender.send(pkt)
     try:
         card = postCardQueue.get(True,TIME_WAIT)
-        TimeLog.GetInstance().clock()
     except Exception:
+        TimeLog.GetInstance().clock()
         return -1
     pid = card[0]
     rid = card[1]

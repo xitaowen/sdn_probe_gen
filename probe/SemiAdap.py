@@ -28,17 +28,17 @@ def IssueProbe(pkt, rules,v1,v2):
     global Pid
     while not postCardQueue.empty():
         postCardQueue.get()
-    pkt['pid'] = Pid
-    Pid += 1
+    #pkt['pid'] = Pid
+    #Pid += 1
     sender.send(pkt)
     try:
         card = postCardQueue.get(True,TIME_WAIT)
-        TimeLog.GetInstance().clock()
     except Exception:
+        TimeLog.GetInstance().clock()
         return -1
     pid = card[0]
     rid = card[1]
-    #print "pid,rid",pid,rid,"v1,v2",v1,v2
+    #print "Pid,pid,rid",pkt['pid'],pid,rid,"v1,v2",v1,v2
     return int(rid)
     if random.randint(0,1) == 0:
         return v1
@@ -46,6 +46,30 @@ def IssueProbe(pkt, rules,v1,v2):
         return v2
     for rule in rules:
         return rule
+def IssueProbeSet(pkts):
+    #print "#",len(pkts)
+    global postCardQueue
+    while not postCardQueue.empty():
+        postCardQueue.get()
+    for pkt in pkts:
+        sender.send(pkts[pkt])
+    hits = {}
+    if len(pkts) == 0:
+        return hits
+    while True:
+        try:
+            TimeLog.GetInstance().addSend()
+            card = postCardQueue.get(True,TIME_WAIT)
+        except Exception:
+            TimeLog.GetInstance().clock()
+            pid = card[0]
+            rid = card[1]
+            hits[pid] = rid
+            return hits
+        pid = card[0]
+        rid = card[1]
+        hits[pid] = rid
+    #print "pid,rid",pid,rid,"v1,v2",v1,v2
 
 def packetGenerator(edge_dict, rule_list, types, q):
     global postCardQueue
@@ -54,6 +78,12 @@ def packetGenerator(edge_dict, rule_list, types, q):
     Pid = 0
 
     TimeLog.GetInstance().addTotal()
+
+    V = rule_list.keys()
+    E = []
+    for v1 in edge_dict:
+        for v2 in edge_dict[v1]:
+            E.append([v2,v1])
 
     S = []
     VV = []
@@ -65,9 +95,10 @@ def packetGenerator(edge_dict, rule_list, types, q):
             if intersection != None:
                 S.append([rules[r1],rules[r2]])
     while len(S) > 0:
-        pset = []
-        #print len(S),index
-        print VV,EE
+        pset = {}
+        pindex = {}
+        #print len(S)
+        #print VV,EE
         for s in S:
             v1 = s[0]
             v2 = s[1]
@@ -88,28 +119,49 @@ def packetGenerator(edge_dict, rule_list, types, q):
             if pkt['SAT'] == 'No':
                 S.remove(s)
                 break
-            pset.append([v1,v2,pkt])
-
+            pindex[Pid] = [v1,v2]
+            pset[Pid] = pkt
+            pkt['pid'] = Pid
+            Pid += 1
+        
+        #print len(pset)
         #IssueProbeSet
-        for p in pset:
-            v1 = p[0]
-            v2 = p[1]
-            pkt = p[2]
+        TimeLog.GetInstance().addTotal()
+        pHits = IssueProbeSet(pset)
+        TimeLog.GetInstance().addSend()
 
-            TimeLog.GetInstance().addTotal()
-            vhit = IssueProbe(pkt,rule_list,v1,v2)
-            TimeLog.GetInstance().addSend()
+        for p in pHits:
+            vhit = pHits[p]
+            v1 = pindex[p][0]
+            v2 = pindex[p][1]
+        #for p in pset:
+            #print len(pset)
+            #pkt = pset[p]
+            #v1 = pindex[p][0]
+            #v2 = pindex[p][1]
+            #TimeLog.GetInstance().addTotal()
+            #vhit = IssueProbe(pkt,rule_list,v1,v2)
+            #TimeLog.GetInstance().addSend()
+            if vhit == -1:
+                return False
+
             if vhit >= 0 and not vhit in VV:
                 VV.append(vhit)
             if vhit == v1:
                 EE.append([v2,v1])
                 S.remove([v1,v2])
-                break
+                continue
             if vhit == v2:
                 EE.append([v1,v2])
                 S.remove([v1,v2])
-                break
-            EE.append([v2,vhit])
+                continue
+            if vhit >= 0:
+                EE.append([v2,vhit])
+                EE.append([v1,vhit])
+                if [v1,vhit] in S:
+                    S.remove([v1,vhit])
+                if [v2,vhit] in S:
+                    S.remove([v2,vhit])
     #print "VV:",VV
     #print "EE:",EE
     #print "stage 2:"
@@ -134,6 +186,8 @@ def packetGenerator(edge_dict, rule_list, types, q):
             if pkt['SAT'] == 'No':
                 break
             TimeLog.GetInstance().addCalc()
+            Pid += 1
+            pkt['pid'] = Pid
             vhit = IssueProbe(pkt, rule_list, v, v)
             TimeLog.GetInstance().addSend()
             if vhit == -1:
