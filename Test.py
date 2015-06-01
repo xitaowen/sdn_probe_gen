@@ -29,7 +29,7 @@ if __name__ == "__main__":
     option = sys.argv[2]
     if not mode in ["0","1","2"]:
         exit(1)
-    if not option in ["fault","non-adapt","full-adapt","semi-adapt"]:
+    if not option in ["fault","none-adapt","full-adapt","semi-adapt"]:
         exit(1)
     inputs = {}
     for l in range(level):
@@ -60,6 +60,8 @@ if __name__ == "__main__":
         if mode == "0":
             if option == "fault":
                 ret = launcher.launcherA("./data/"+name)
+            elif option == "none-adapt":
+                ret = launcher.launcherB("./data/"+name)
             elif option == "full-adapt":
                 ret = launcher.launcherC("./data/"+name)
             elif option == "semi-adapt":
@@ -67,6 +69,8 @@ if __name__ == "__main__":
         elif mode == "1":
             if option == "fault":
                 ret = launcher.launcherAWithWrongTable("./data/"+name,"./data/"+name+".miss")
+            elif option == "none-adapt":
+                ret = launcher.launcherBWithWrongTable("./data/"+name,"./data/"+name+".miss")
             elif option == "full-adapt":
                 ret = launcher.launcherCWithWrongTable("./data/"+name,"./data/"+name+".miss")
             elif option == "semi-adapt":
@@ -75,6 +79,8 @@ if __name__ == "__main__":
         elif mode == "2":
             if option == "fault":
                 ret = launcher.launcherAWithWrongTable("./data/"+name,"./data/"+name +".order")
+            elif option == "none-adapt":
+                ret = launcher.launcherBWithWrongTable("./data/"+name,"./data/"+name +".order")
             elif option == "full-adapt":
                 ret = launcher.launcherCWithWrongTable("./data/"+name,"./data/"+name +".order")
             elif option == "semi-adapt":
@@ -88,6 +94,7 @@ if __name__ == "__main__":
         #time[key/step] += ret[1]["total"]
     print right,"/",total
     for i in range(0,level):
+        print "Setting, mode: ",mode,"option: ",option
         print "set:",i,"with",step,"inputs, size:",10**(i+1)
         if step > 0:
             for ts in times:

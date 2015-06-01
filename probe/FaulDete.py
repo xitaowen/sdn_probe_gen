@@ -64,7 +64,6 @@ def packetGenerator(edge_dict, rule_list, types):
                 if packet['SAT'] == 'No':
                     print "Dependency Error"
                     return pairs
-                sendToInjector(packet)
                 # include the packet and its rule pair
                 T[rule2].append(intersection)
                 #T[rule2].append(rule_list[rule1])
@@ -81,7 +80,6 @@ def packetGenerator(edge_dict, rule_list, types):
             if packet['SAT'] == 'No':
                 #print "Dependency Error"
                 return pairs
-            sendToInjector(packet)
 
             tu = (rule1, packet)
             if tu not in pairs:
@@ -95,7 +93,6 @@ def packetGenerator(edge_dict, rule_list, types):
             if packet['SAT'] == 'No':
                 print "Dependency Error"
                 return pairs
-            sendToInjector(packet)
 
             tu = (rule1, packet)
             if tu not in pairs:
@@ -110,13 +107,6 @@ def packetGenerator(edge_dict, rule_list, types):
     TimeLog.GetInstance().addCalc()
     return pairs
 
-
-def sendToPostcardProcessor(rid,sid, num = 1000):
-    pass
-
-def sendToInjector(packet, switch_id = 1, num = 1000):
-    output_file.write(str(packet))
-    output_file.write('\n')
 
 import sys
 if __name__ == "__main__":

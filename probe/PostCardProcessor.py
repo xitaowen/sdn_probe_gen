@@ -129,4 +129,4 @@ if __name__ == "__main__":
     post.start()
     print postCardQueue.get()
     print postCardQueue.qsize()
-    time.sleep(100)
+    #time.sleep(100)

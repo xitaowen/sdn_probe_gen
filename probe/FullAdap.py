@@ -31,6 +31,8 @@ def IssueProbe(pkt, rules,v1,v2):
         postCardQueue.get()
     pkt['pid'] = Pid
     Pid += 1
+    print "send: ",Pid,
+    print "%.16f" % time.time()
     sender.send(pkt)
     try:
         card = postCardQueue.get(True,TIME_WAIT)
@@ -39,6 +41,7 @@ def IssueProbe(pkt, rules,v1,v2):
         return -1
     pid = card[0]
     rid = card[1]
+    print "recv: ",pid,"%.16f" % time.time()
     #print "pid,rid",pid,rid,"v1,v2",v1,v2
     return int(rid)
     if random.randint(0,1) == 0:
@@ -79,7 +82,6 @@ def packetGenerator(edge_dict, rule_list, types, q):
             if intersection != None:
                 S.append([rules[r1],rules[r2]])
     while len(S) > 0:
-        time.sleep(0.1)
         #index = random.randint(0,len(S)-1)
         index = 0
         v1 = S[index][0]
@@ -94,7 +96,6 @@ def packetGenerator(edge_dict, rule_list, types, q):
         intersection = header.intersect_molecule(rule_list[v1],rule_list[v2])
         T = (intersection,header_space)
         while True:
-            #time.sleep(0.1)
             subtraction = header.subtraction_wrapper(intersection, header_space)
             if subtraction == None:
                 del S[index]

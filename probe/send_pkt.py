@@ -54,6 +54,7 @@ class PacketProcessor(threading.Thread):
                 print "Exception!"
             finally:
                 print "%.16f" %time.time()
+                print "###############"
             #print data
                 conn.close()
 
@@ -83,13 +84,14 @@ class SendPkt(app_manager.RyuApp):
         else:
             out_port = ofproto.OFPP_FLOOD
         actions = [parser.OFPActionOutput(out_port)]
-        print "pkt-out!"
-        print "port:", out_port
-        print "pkt:", data
+        #print "pkt-out!"
+        #print "port:", out_port
+        #print "pkt:", data
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=ofproto.OFP_NO_BUFFER, in_port=ofproto.OFPP_CONTROLLER,
                                   actions=actions, data=data)
         datapath.send_msg(out)
         print "packet_sent"
+        print "%.16f" %time.time()
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -161,6 +163,7 @@ class SendPkt(app_manager.RyuApp):
         #print len(pkt.data)
         datapath = get_switch(self, dpid)[0].dp
         self.pkt_out(datapath, pkt, port)
+        print pktid
 
     # diaoyong
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
