@@ -11,7 +11,7 @@ class PostcardGernerator:
     def __init__(self, fname):
         self.name = fname
     def transfer(self, rule):
-        ret = "ovs-ofctl -O OpenFlow13 add-flow s1  "
+        ret = "/ovs/bin/ovs-ofctl -O OpenFlow13 add-flow br0  "
         detail = ""
         rid = "0"
         ip = "dl_type=0x0800,"
@@ -63,7 +63,7 @@ class PostcardGernerator:
         rules = data["table"]
 
         #parse flow table to cmds
-        cmds = ["ovs-ofctl -O OpenFlow13 del-flows s1"]
+        cmds = ["/ovs/bin/ovs-ofctl -O OpenFlow13 del-flows br0"]
         for rule in rules:
             cmds.append(self.transfer(rule))
 
@@ -74,9 +74,9 @@ class PostcardGernerator:
             f.write("\n")
         f.close()
         #excute those command
-        os.system("scp ./postcard.sh byang@openflow-0.cs.northwestern.edu:~/")
-        os.system("ssh byang@openflow-0.cs.northwestern.edu -t \"sh ./postcard.sh\"")
-        #os.system("sh postcard.sh")
+        #os.system("scp ./postcard.sh admin@openflow-0.cs.northwestern.edu:~/")
+        #os.system("ssh admin@openflow-0.cs.northwestern.edu -t \"sh ./postcard.sh\"")
+        os.system("bash postcards.sh")
 
 if __name__ == "__main__":
     name = sys.argv[1]
