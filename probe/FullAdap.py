@@ -31,7 +31,7 @@ def IssueProbe(pkt, rules,v1,v2):
         postCardQueue.get()
     pkt['pid'] = Pid
     Pid += 1
-    print "send: ",Pid,
+    print "send: ",Pid-1,
     print "%.16f" % time.time()
     sender.send(pkt)
     try:

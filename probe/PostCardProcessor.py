@@ -48,10 +48,14 @@ class PostCardProcessor(threading.Thread):
         p.open_live(dev, 1600, 0, 100)
         p.setfilter('mpls', 0, 0)
 
+        #p.setnonblock(0)
         try:
             while True:
-                p.dispatch(1, self.filter_packet)
-                isReady = True
+                #p.dispatch(1, self.filter_packet)
+                print "before loop: %.16f" % time.time()
+                p.loop(1, self.filter_packet)
+                print "after loop: %.16f" % time.time()
+                #isReady = True
         except KeyboardInterrupt:
             print '%s' % sys.exc_type
             print 'shutting down'
@@ -108,6 +112,7 @@ class PostCardProcessor(threading.Thread):
         postCardQueue.put((pid,rid))
 
     def filter_packet(self,pktlen, data, timestamp):
+        print "inside loop: %.16f" % time.time()
         if not data:
             return
         if data[12:14] == '\x88\x47':
