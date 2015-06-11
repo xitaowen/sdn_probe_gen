@@ -74,7 +74,9 @@ class PostcardGernerator:
             f.write("\n")
         f.close()
         #excute those command
-        os.system("sh postcard.sh")
+        os.system("scp ./postcard.sh byang@openflow-0.cs.northwestern.edu:~/")
+        os.system("ssh byang@openflow-0.cs.northwestern.edu -t \"sh ./postcard.sh\"")
+        #os.system("sh postcard.sh")
 
 if __name__ == "__main__":
     name = sys.argv[1]
