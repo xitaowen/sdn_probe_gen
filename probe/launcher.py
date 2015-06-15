@@ -541,13 +541,13 @@ if __name__ == "__main__":
         print "Usage: python launcher.py dag_file"
         exit(0)
     dag_file = sys.argv[1]
-    #launcherA(dag_file)
+    launcherA(dag_file)
     #launcherAWithWrongTable(dag_file,dag_file+".miss")
     #launcherAWithWrongTable(dag_file,dag_file+".order")
     #launcherB(dag_file)
     #launcherBWithWrongTable(dag_file,dag_file+".miss")
     #launcherBWithWrongTable(dag_file,dag_file+".order")
-    launcherC(dag_file)
+    #launcherC(dag_file)
     #launcherCWithWrongTable(dag_file,dag_file+".miss")
     #launcherCWithWrongTable(dag_file,dag_file+".order")
     #launcherD(dag_file)

@@ -96,6 +96,6 @@ class PostCardProcessor(threading.Thread):
                 self.sendToLauncher(decoded['packetid'],decoded['ruleid'])
 
 if __name__ == "__main__":
-    post = PostCardProcessor('s0-eth3')
+    post = PostCardProcessor('eth0')
     post.start()
     time.sleep(100)

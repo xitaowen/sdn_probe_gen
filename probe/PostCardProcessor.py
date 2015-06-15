@@ -21,7 +21,7 @@ class PostCardProcessor(threading.Thread):
         if PostCardProcessor.instance == None:
             PostCardProcessor.mutex.acquire()
             if PostCardProcessor.instance == None:
-                PostCardProcessor.instance = PostCardProcessor('s1-eth4')
+                PostCardProcessor.instance = PostCardProcessor('eth2')
                 PostCardProcessor.instance.start()
             PostCardProcessor.mutex.release()
         return PostCardProcessor.instance
@@ -52,9 +52,9 @@ class PostCardProcessor(threading.Thread):
         try:
             while True:
                 #p.dispatch(1, self.filter_packet)
-                print "before loop: %.16f" % time.time()
+                #print "before loop: %.16f" % time.time()
                 p.loop(1, self.filter_packet)
-                print "after loop: %.16f" % time.time()
+                #print "after loop: %.16f" % time.time()
                 #isReady = True
         except KeyboardInterrupt:
             print '%s' % sys.exc_type
@@ -112,7 +112,7 @@ class PostCardProcessor(threading.Thread):
         postCardQueue.put((pid,rid))
 
     def filter_packet(self,pktlen, data, timestamp):
-        print "inside loop: %.16f" % time.time()
+        #print "inside loop: %.16f" % time.time()
         if not data:
             return
         if data[12:14] == '\x88\x47':

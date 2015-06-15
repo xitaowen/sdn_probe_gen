@@ -10,6 +10,7 @@ import string
 import time
 import socket
 import struct
+sys.path.append("/usr/lib64/python2.7/site-packages")
 
 protocols={socket.IPPROTO_TCP:'tcp',
             socket.IPPROTO_UDP:'udp',
@@ -70,10 +71,11 @@ if __name__=='__main__':
     if len(sys.argv) < 3:
         print 'usage: sniff.py <interface> <expr>'
         sys.exit(0)
-    p = pcap.pcapObject()
+    #p = pcap.pcapObject()
+    p = pcap.pcap()
     #dev = pcap.lookupdev()
     dev = sys.argv[1]
-    net, mask = pcap.lookupnet(dev)
+    #net, mask = pcap.lookupnet(dev)
     # note:    to_ms does nothing on linux
     p.open_live(dev, 1600, 0, 100)
     #p.dump_open('dumpfile')

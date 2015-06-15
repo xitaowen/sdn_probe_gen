@@ -47,7 +47,7 @@ class PostcardGernerator:
         elif fg_ip:
             ret = ret + ip
         ret = ret + detail
-        ret = ret + "actions=" + "push_mpls:0x8847,set_mpls_label:" + rid + ",output:" + str(4)
+        ret = ret + "actions=" + "push_mpls:0x8847,set_mpls_label:" + rid + ",output:" + str(2)
         #print "command:",ret
         return ret
 

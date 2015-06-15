@@ -27,14 +27,15 @@ import os
 import time
 import socket
 import struct
-
+switchid = 1
 class PacketProcessor(threading.Thread):
     def __init__(self,app):
         threading.Thread.__init__(self)
         self.sockname = 'packets'
         self.app = app
-    def run(self):
+    def run(self):	
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        global switchid 
         if os.path.exists(self.sockname):
             os.unlink(self.sockname)
         sock.bind(self.sockname)
@@ -49,9 +50,10 @@ class PacketProcessor(threading.Thread):
                 pkt = {}
                 for key in rule:
                     pkt[key] = rule[key]
-                self.app.sendpkt(2, pkt)
-            except Exception:
+                self.app.sendpkt(switchid, pkt)
+            except Exception as e:
                 print "Exception!"
+                print e
             finally:
                 print "%.16f" %time.time()
                 print "###############"
@@ -71,6 +73,13 @@ class SendPkt(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         pkt.serialize()
+        
+        import socket 
+         
+        s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW) 
+        s.bind(("eth1", 0))
+        s.send(pkt.data)
+        s.close()
         #data = pkt.data
         #data = pkt.data + bytearray(array.array('c', ['5']))
         if self.count < 256:
@@ -83,6 +92,7 @@ class SendPkt(app_manager.RyuApp):
             out_port = port
         else:
             out_port = ofproto.OFPP_FLOOD
+        out_port = 1
         actions = [parser.OFPActionOutput(out_port)]
         #print "pkt-out!"
         #print "port:", out_port
@@ -95,11 +105,14 @@ class SendPkt(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
+        global switchid 
         print 'switch entrying'
         datapath = ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         match = parser.OFPMatch()
+        switchid = datapath.id
+        print "switch id: ", switchid
         #actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER)]
         actions = []
         self.add_flow(datapath, 0, match, actions)
@@ -141,6 +154,11 @@ class SendPkt(app_manager.RyuApp):
                 pktid = pkt[id_field[0]]
 
         #pkt = packet.Packet(data=array.array('i', [6000]))
+        print "srcip:",srcip
+        print "srcport:",srcport
+        print "dstip:",dstip
+        print "dstport:",dstport
+        print "pktid:",pktid
 
         pkt = packet.Packet()
         # src='' dst=''
