@@ -18,7 +18,7 @@ rm -f ${FILE}_3
 rm -f ${FILE}_4
 rm -f ${FILE}_5
 rm -f ${FILE}_6
-${DB}db_generator -bc ${DB}parameter_files/fw4_seed ${SIZE} 2 -0.5 0.1 ${FILE}_0
+${DB}db_generator -bc ${DB}parameter_files/fw4_seed ${SIZE} 2 -0.5 -1.0 ${FILE}_0
 #echo ${DB}db_generator -bc ${DB}parameter_files/fw4_seed ${SIZE} 2 -0.5 0.1 ${FILE}_0
 python ${CUR}change.py ${FILE}_0 ${FILE}_1
 python ${CUR}sort.py ${FILE}_1 ${FILE}_2

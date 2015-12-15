@@ -20,7 +20,8 @@ sourcefiles = ["pcap.c"]
 
 # if you are building against a non-installed version of libpcap,
 # specify its directory here, otherwise set this to None
-libpcap_dir = None
+# libpcap_dir = None
+libpcap_dir = "/home/byang/git/sdn_probe_gen/probe"
 # libpcap_dir = "/home/wiml/netsrc/libpcap/libpcap-0.7.2"
 # libpcap_dir = "/home/wiml/netsrc/libpcap/libpcap-0.8.3"
 # libpcap_dir = "/home/wiml/netsrc/libpcap/cvs.tcpdump.org/libpcap"

@@ -24,23 +24,20 @@ def rule_parse(a):
 
     rules = {}
     types = ["tcpSrcPort","tcpDstPort","ipSrc","ipDst"]
-    for type in types:
+    for typ in types:
         #process port
-        pattern = type +'=([0-9]+)'
+        pattern = typ +'=([0-9]+)'
         reg = re.compile(pattern)
-        #print "patterns[0]",patterns[0]
-        #print patterns
-        #print patterns[0]
-        #print reg.findall(patterns[0])
         value = reg.findall(patterns[0])
         if not (len(value)==0):
-            rules[type] = value[0]
+            #print typ
+            rules[typ] = value[0]
         #process ip
-        pattern1 = type +'=((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))(\/{1})(([1-3]\d)|[0-9]))'
+        pattern1 = typ +'=((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))(\/{1})(([1-3]\d)|[0-9]))'
         reg1 = re.compile(pattern1)
         value1 = reg1.findall(patterns[0])
         if not (len(value1)==0):
-            rules[type] = value1[0][0]
+            rules[typ] = value1[0][0]
 
     #for typ in types:
     #    if (not rules.has_key(typ)):

@@ -62,8 +62,9 @@ def packetGenerator(edge_dict, rule_list, types):
                 TimeLog.GetInstance().addSolver()
                 #print packet
                 if packet['SAT'] == 'No':
-                    print "Dependency Error"
-                    return pairs
+                    print "1. Dependency Error"
+                    print rule2
+                    return False
                 # include the packet and its rule pair
                 T[rule2].append(intersection)
                 #T[rule2].append(rule_list[rule1])
@@ -78,8 +79,9 @@ def packetGenerator(edge_dict, rule_list, types):
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
             TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
-                #print "Dependency Error"
-                return pairs
+                print "2. (leaf) Dependency Error"
+                print rule1
+                return False
 
             tu = (rule1, packet)
             if tu not in pairs:
@@ -91,8 +93,9 @@ def packetGenerator(edge_dict, rule_list, types):
             packet = solver.createPacket(rule_list[rule1],T[rule1],types)
             TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
-                print "Dependency Error"
-                return pairs
+                print "3. (dependent) Dependency Error"
+                print rule1
+                return False
 
             tu = (rule1, packet)
             if tu not in pairs:

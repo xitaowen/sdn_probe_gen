@@ -14,11 +14,11 @@ sudo python Test.py 1 fault >> $1
 echo sudo python Test.py 2 fault
 sudo python Test.py 2 fault >> $1
 echo sudo python Test.py 0 none-adapt
-sudo python Test.py 0 none-adapt >> $1
+#sudo python Test.py 0 none-adapt >> $1
 echo sudo python Test.py 1 none-adapt
-sudo python Test.py 1 none-adapt >> $1
+#sudo python Test.py 1 none-adapt >> $1
 echo sudo python Test.py 2 none-adapt
-sudo python Test.py 2 none-adapt >> $1
+#sudo python Test.py 2 none-adapt >> $1
 echo sudo python Test.py 0 full-adapt
 sudo python Test.py 0 full-adapt >> $1
 echo sudo python Test.py 1 full-adapt

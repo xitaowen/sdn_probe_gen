@@ -48,6 +48,9 @@ def launcherA(dag_file):
     rule_list,edge_dict = parser.DAGLoader(dag_file);
     pairs = FaulDete.packetGenerator(edge_dict, rule_list, types)
     #logging.info("2# packets generated %.8f" %time.time())
+    if pairs == False:
+        flag = False
+        return flag, TimeLog.GetInstance().getCost()
 
     #send the packets
     #logging.info("3# packets flushed to datapath %.8f" %time.time())
@@ -62,6 +65,7 @@ def launcherA(dag_file):
         #logging.debug("10# pid to rid: %d - %d." % (i,rid))
         sender.send(pkt)
     TimeLog.GetInstance().addSend()
+    TimeLog.GetInstance().addPackets(len(pairs))
 
 
     #process with the postcard
@@ -107,9 +111,10 @@ def launcherA(dag_file):
                     warn += typ+":"+str(pkt[typ])+";"
                 #logging.warn("12#"+warn)
                 #break
-                print "Failed!",TimeLog.GetInstance().getCost()
-                flag = False
-                return flag,time.time()-delta-TIME_WAIT
+                #print "Failed!",TimeLog.GetInstance().getCost()
+                TimeLog.GetInstance().addFirst()
+                #return flag, TimeLog.GetInstance().getCost()
+                #return flag,time.time()-delta-TIME_WAIT
     #logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
     #logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
     print "Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) 
@@ -159,6 +164,7 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
         #logging.debug("10# pid to rid: %d - %d." % (i,rid))
         sender.send(pkt)
     TimeLog.GetInstance().addSend()
+    TimeLog.GetInstance().addPackets(len(pairs))
 
 
     #process with the postcard
@@ -202,9 +208,9 @@ def launcherAWithWrongTable(dag_file, wrong_dag):
                     warn += typ+":"+str(pkt[typ])+";"
                 #logging.warn("12#"+warn)
                 #break
-                print "Failed!",TimeLog.GetInstance().getCost()
-                flag = False
-                return flag,TimeLog.GetInstance().getCost()
+                #print "Failed!",TimeLog.GetInstance().getCost()
+                TimeLog.GetInstance().addFirst()
+                #return flag,TimeLog.GetInstance().getCost()
     #logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
     #logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
     Flag = False
@@ -535,13 +541,25 @@ def launcherDWithWrongTable(dag_file, wrong_dag):
     return flag,TimeLog.GetInstance().getCost()
     #return flag,time.time()-delta-TIME_WAIT
 
+def preTest(dag_file):
+
+    import parser, PreTest
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    pairs = PreTest.packetGenerator(edge_dict, rule_list, types)
+    #logging.info("2# packets generated %.8f" %time.time())
+    if pairs[0] == False:
+        flag = False
+        return pairs
+    return True,0
+
 if __name__ == "__main__":
     #parse the input arguments
     if len(sys.argv) != 2:
         print "Usage: python launcher.py dag_file"
         exit(0)
     dag_file = sys.argv[1]
-    launcherA(dag_file)
+    #launcherA(dag_file)
     #launcherAWithWrongTable(dag_file,dag_file+".miss")
     #launcherAWithWrongTable(dag_file,dag_file+".order")
     #launcherB(dag_file)
@@ -553,4 +571,5 @@ if __name__ == "__main__":
     #launcherD(dag_file)
     #launcherDWithWrongTable(dag_file,dag_file+".miss")
     #launcherDWithWrongTable(dag_file,dag_file+".order")
+    launcherDWithWrongTable(dag_file,dag_file+"_8.mix")
 

@@ -31,6 +31,7 @@ def IssueProbe(pkt, rules,v1,v2):
     #pkt['pid'] = Pid
     #Pid += 1
     sender.send(pkt)
+    TimeLog.GetInstance().addPacket()
     try:
         card = postCardQueue.get(True,TIME_WAIT)
     except Exception:
@@ -51,9 +52,11 @@ def IssueProbeSet(pkts):
     global postCardQueue
     while not postCardQueue.empty():
         postCardQueue.get()
+    hits = {}
     for pkt in pkts:
         sender.send(pkts[pkt])
-    hits = {}
+        hits[pkt] = -1
+    TimeLog.GetInstance().addPackets(len(pkts))
     if len(pkts) == 0:
         return hits
     while True:
@@ -62,9 +65,9 @@ def IssueProbeSet(pkts):
             card = postCardQueue.get(True,TIME_WAIT)
         except Exception:
             TimeLog.GetInstance().clock()
-            pid = card[0]
-            rid = card[1]
-            hits[pid] = rid
+            #pid = card[0]
+            #rid = card[1]
+            #hits[pid] = rid
             return hits
         pid = card[0]
         rid = card[1]
@@ -95,6 +98,7 @@ def packetGenerator(edge_dict, rule_list, types, q):
             if intersection != None:
                 S.append([rules[r1],rules[r2]])
     while len(S) > 0:
+        #print "#",len(S),S
         pset = {}
         pindex = {}
         #print len(S)
@@ -142,18 +146,18 @@ def packetGenerator(edge_dict, rule_list, types, q):
             #TimeLog.GetInstance().addTotal()
             #vhit = IssueProbe(pkt,rule_list,v1,v2)
             #TimeLog.GetInstance().addSend()
-            if vhit == -1:
-                return False
 
             if vhit >= 0 and not vhit in VV:
                 VV.append(vhit)
             if vhit == v1:
                 EE.append([v2,v1])
-                S.remove([v1,v2])
+                if [v1,v2] in S:
+                    S.remove([v1,v2])
                 continue
             if vhit == v2:
                 EE.append([v1,v2])
-                S.remove([v1,v2])
+                if [v1,v2] in S:
+                    S.remove([v1,v2])
                 continue
             if vhit >= 0:
                 EE.append([v2,vhit])
@@ -162,11 +166,15 @@ def packetGenerator(edge_dict, rule_list, types, q):
                     S.remove([v1,vhit])
                 if [v2,vhit] in S:
                     S.remove([v2,vhit])
+            if vhit == -1:
+                if [v1,v2] in S:
+                    S.remove([v1,v2])
     #print "VV:",VV
     #print "EE:",EE
     #print "stage 2:"
     VVV = [val for val in V if val not in VV]
     while len(VVV) > 0:
+        #print "#",len(VVV)
         index = random.randint(0,len(VVV)-1)
         v = VVV[index]
         T = rule_list[v]

@@ -33,18 +33,22 @@ if __name__ == "__main__":
         srcport = tcpSrcPort.split(":")
         if srcport[0] == srcport[1]:
             tcpSrcPort = srcport[0]
-        else:
+        elif int(srcport[0]) == 0 and int(srcport[1]) == 65535:
             tcpSrcPort = -1
+        else:
+            tcpSrcPort = srcport[0]
         #dst port
         tcpDstPort = item[3]
         dstport = tcpDstPort.split(":")
         if dstport[0] == dstport[1]:
             tcpDstPort = dstport[0]
-        else:
+        elif int(dstport[0]) == 0 and int(dstport[1]) == 65535:
             tcpDstPort = -1
+        else:
+            tcpDstPort = dstport[0]
         #add to flow together
         ft.write("{pattern={")
-        if tcpDstPort != -1:
+        if tcpSrcPort != -1:
             if counts > 0:
                 ft.write(",")
             counts += 1

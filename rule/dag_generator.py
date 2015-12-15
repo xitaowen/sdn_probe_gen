@@ -338,6 +338,7 @@ def new_dag_generator(rules):
  			if i == 56 and j == 71:
  				pass#print intersect_molecule(match_range, rules[j])#pass#print rules[i],rules[j]
 			if rules[j] == None:
+				print j
 				continue
 			#print "     and rule",j,":",rules[j]
 			if intersect_molecule(match_range, rules[j])!=None:
@@ -399,7 +400,7 @@ def new_new_rule_parse(types,filename):
             #print reg.findall(patterns[0])
             value = reg.findall(pattern)
             if not (len(value)==0):
-                rules[type] = value[0]
+                rules[typ] = value[0]
             #process ip
             pattern1 = typ +'=((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))(\/{1})(([1-3]\d)|[0-9]))'
             reg1 = re.compile(pattern1)
@@ -407,6 +408,7 @@ def new_new_rule_parse(types,filename):
             if not (len(value1)==0):
                 rules[typ] = value1[0][0]
 
+        #print rules
         rule = {}
         for typ in types:
             if (not rules.has_key(typ)) or (rule.has_key(typ)):
@@ -484,7 +486,7 @@ if __name__=="__main__":
 #	tr_dag = transitive_reduction(dag, len(rules))
 #	print tr_dag
     rules = new_new_rule_parse(types,sys.argv[1])
-#	print rules
+    #print rules
     dag=new_dag_generator(rules)
 #	print "-----new dag-------"
 #	print dag

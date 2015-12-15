@@ -10,6 +10,8 @@ class TimeLog():
         self.send = 0
         self.total = 0
         self.last = 0
+        self.packets = 0
+        self.first = 0
 
     @staticmethod
     def GetInstance():
@@ -29,6 +31,8 @@ class TimeLog():
         self.solver = 0
         self.send = 0
         self.total = 0
+        self.first = 0
+        self.packets = 0
         self.last = time.time()
 
     def clock(self):
@@ -50,6 +54,15 @@ class TimeLog():
     def addTotal(self):
         self.total += time.time()-self.last
         self.last = time.time()
+    
+    def addPacket(self):
+        self.packets += 1
+    def addPackets(self,count):
+        self.packets += count
+
+    def addFirst(self):
+        if self.first == 0:
+            self.first = self.total + self.calc + self.solver + self.send
 
     def getCost(self):
         ret = {}
@@ -58,4 +71,6 @@ class TimeLog():
         ret['solver'] = self.solver
         ret['send'] = self.send
         ret['total'] = self.total
+        ret['first'] = self.first
+        ret['packets'] = self.packets
         return ret

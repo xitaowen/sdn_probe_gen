@@ -59,15 +59,23 @@ if __name__ == "__main__":
         rule["actions"] = at
         rule["id"] = str(i)
         rule["priority"] = str(total-i)
-        for type in types:
-            pattern = type +'=((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))(\/{1})(([1-3]\d)|[0-9]))'
+        for typ in types:
+            pattern = typ +'=((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))(\/{1})(([1-3]\d)|[0-9]))'
             reg = re.compile(pattern)
             value = reg.findall(line)
             if not (len(value)==0):
-                if type == "ipSrc":
+                if typ == "ipSrc":
                     rule["src-ip"] = value[0][0]
-                if type == "ipDst":
+                if typ == "ipDst":
                     rule["dst-ip"] = value[0][0]
+            pattern = typ +'=(?:([0-9]+)[\ ])'
+            reg = re.compile(pattern)
+            value = reg.findall(line)
+            if not (len(value)==0):
+                if typ == "tcpSrcPort":
+                    rule["src-port"] = value[0]
+                if typ == "tcpDstPort":
+                    rule["dst-port"] = value[0]
         tab.append(rule)
     tab = tab[0:-1]
     data["table"] = tab

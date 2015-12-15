@@ -31,9 +31,10 @@ def IssueProbe(pkt, rules,v1,v2):
         postCardQueue.get()
     pkt['pid'] = Pid
     Pid += 1
-    print "send: ",Pid-1,
-    print "%.16f" % time.time()
+    #print "send: ",Pid-1,
+    #print "%.16f" % time.time()
     sender.send(pkt)
+    TimeLog.GetInstance().addPacket()
     try:
         card = postCardQueue.get(True,TIME_WAIT)
     except Exception:
@@ -41,7 +42,7 @@ def IssueProbe(pkt, rules,v1,v2):
         return -1
     pid = card[0]
     rid = card[1]
-    print "recv: ",pid,"%.16f" % time.time()
+    #print "recv: ",pid,"%.16f" % time.time()
     #print "pid,rid",pid,rid,"v1,v2",v1,v2
     return int(rid)
     if random.randint(0,1) == 0:
@@ -120,7 +121,8 @@ def packetGenerator(edge_dict, rule_list, types, q):
             vhit = IssueProbe(pkt,rule_list,v1,v2)
             TimeLog.GetInstance().addSend()
             if vhit == -1:
-                return False
+                del S[index]
+                break
 
             #solver.printpkt(pkt,types)
             if vhit >= 0 and not vhit in VV:
