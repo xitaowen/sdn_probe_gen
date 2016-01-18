@@ -51,6 +51,7 @@ def launcherA(dag_file):
     if pairs == False:
         flag = False
         return flag, TimeLog.GetInstance().getCost()
+    #print pairs
 
     #send the packets
     #logging.info("3# packets flushed to datapath %.8f" %time.time())
@@ -117,7 +118,7 @@ def launcherA(dag_file):
                 #return flag,time.time()-delta-TIME_WAIT
     #logging.info("56# Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) )
     #logging.info("57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT))
-    print "Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch) 
+    print "Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch)
     print "57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT)
     Flag = False
     return flag,time.time()-delta-TIME_WAIT
@@ -553,12 +554,205 @@ def preTest(dag_file):
         return pairs
     return True,0
 
+def launcherE(dag_file, pre_file):
+    #set the log mode
+    logging.basicConfig(level=logging.WARNING)
+
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(dag_file)
+    pcg.start()
+
+    PostCardProcessor.Start()
+    time.sleep(0.1)
+
+    from timelog import TimeLog
+
+    import parser, IncrFaulDete
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file)
+    rule_lists,edge_dicts = parser.DAGLoader(pre_file)
+
+    table = []
+    for i in rule_list.keys():
+        for j in rule_lists.keys():
+            ret = cmp(rule_list[i], rule_lists[j])
+            if ret == 0:
+                #print rule_list[i]
+                #print rule_lists[j]
+                table.append(i)
+    #print table
+
+    TimeLog.GetInstance().reset()
+    pairs = IncrFaulDete.packetGenerator(edge_dict, rule_list, types, table)
+    if pairs == False:
+        flag = False
+        return flag, TimeLog.GetInstance().getCost()
+
+    TimeLog.GetInstance().addCalc()
+    sender = Sender()
+    pid2rid = {}
+    for i,pair in enumerate(pairs):
+        rid = pair[0]
+        pkt = pair[1]
+        pkt['pid'] = i
+        pid2rid[i] = rid
+        sender.send(pkt)
+    TimeLog.GetInstance().addSend()
+    TimeLog.GetInstance().addPackets(len(pairs))
+
+    matched = 0
+    unmatch = 0
+    flag = True
+    while True:
+        try:
+            TimeLog.GetInstance().addTotal()
+            card = postCardQueue.get(True,TIME_WAIT)
+        except Exception:
+            TimeLog.GetInstance().clock()
+            if len(pid2rid) > 0:
+                print "Failed!",TimeLog.GetInstance().getCost()
+                flag = False
+                return flag, TimeLog.GetInstance().getCost()
+            else:
+                print "Success!",TimeLog.GetInstance().getCost()
+                flag = True
+                return flag, TimeLog.GetInstance().getCost()
+            break
+        pid = card[0]
+        rid = card[1]
+        if pid in pid2rid:
+            rrid = pid2rid[pid]
+            if rid == pid2rid[pid]:
+                matched += 1
+                pid2rid.pop(pid)
+            else:
+                unmatch += 1
+                pkt = pairs[pid][1]
+                warn = ""
+                for typ in ['src-ip','dst-ip','src-port','dst-port']:
+                    warn += typ+":"+str(pkt[typ])+";"
+                TimeLog.GetInstance().addFirst()
+    print "Finally, %d packets matched right, %d packets mismatched." %(matched,unmatch)
+    print "57#time count: %.6f seconds" % (time.time() - delta - TIME_WAIT)
+    Flag = False
+    return flag,time.time()-delta-TIME_WAIT
+
+def launcherF(dag_file, pre_file):
+
+    #set the log mode
+    #logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
+    #logging.basicConfig(level=logging.ERROR)
+
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(dag_file)
+    pcg.start()
+
+    #collect postcard
+    #post = PostCardProcessor('s1-eth4')
+    #post.start()
+    PostCardProcessor.Start()
+    time.sleep(1)
+    #logging.info("1# start to collect %.8f" %time.time())
+
+    #start to generate packets
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
+
+    import parser, IncrFullAdap
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    rule_lists,edge_dicts = parser.DAGLoader(pre_file)
+
+    table = []
+    for i in rule_list.keys():
+        for j in rule_lists.keys():
+            ret = cmp(rule_list[i], rule_lists[j])
+            if ret == 0:
+                #print rule_list[i]
+                #print rule_lists[j]
+                table.append(i)
+    #print len(table),table
+
+    TimeLog.GetInstance().clock()
+    flag = IncrFullAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue, table)
+    TimeLog.GetInstance().addTotal()
+    if flag == False:
+        print "Failed!",TimeLog.GetInstance().getCost()
+    elif flag == True:
+        print "Success!",TimeLog.GetInstance().getCost()
+    else:
+        print "Unexpected!",TimeLog.GetInstance().getCost()
+    Flag = False
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+
+def launcherG(dag_file, pre_file):
+    logging.basicConfig(level=logging.WARNING)
+
+    from timelog import TimeLog
+    TimeLog.GetInstance().reset()
+    #generate rules and install them on switch 1
+    pcg = PostcardGernerator.PostcardGernerator(dag_file)
+    pcg.start()
+
+    PostCardProcessor.Start()
+    time.sleep(1)
+
+    #start to generate packets
+
+    import parser, IncrSemiAdap
+    types = parser.type_parse("typename.txt")
+    rule_list,edge_dict = parser.DAGLoader(dag_file);
+    rule_lists,edge_dicts = parser.DAGLoader(pre_file)
+
+    table = []
+    tbN = []
+    hs = {}
+    for i in rule_list.keys():
+        for j in rule_lists.keys():
+            ret = cmp(rule_list[i], rule_lists[j])
+            if ret == 0:
+                #print rule_list[i]
+                #print rule_lists[j]
+                table.append(i)
+                if not j in tbN:
+                    tbN.append(j)
+                    hs[j] = i
+    #print table
+    edges_pre = []
+    for i in edge_dicts.keys():
+        if not i in tbN:
+            continue
+        for j in edge_dicts[i]:
+            if not j in tbN:
+                continue
+            edges_pre.append([hs[i], hs[j]])
+
+    TimeLog.GetInstance().clock()
+    flag = IncrSemiAdap.packetGenerator(edge_dict, rule_list, types, postCardQueue, table, edges_pre)
+    if flag == False:
+        print "Failed!",TimeLog.GetInstance().getCost()
+    elif flag == True:
+        print "Success!",TimeLog.GetInstance().getCost()
+    else:
+        print "Unexpected!",TimeLog.GetInstance().getCost()
+    Flag = False
+    time.sleep(0.1)
+    return flag,TimeLog.GetInstance().getCost()
+
 if __name__ == "__main__":
     #parse the input arguments
-    if len(sys.argv) != 2:
-        print "Usage: python launcher.py dag_file"
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        print "Or Usage: python launcher.py dag_file"
+        print "Or Usage: python launcher.py dag_file pre_file"
         exit(0)
     dag_file = sys.argv[1]
+    pre_file = ""
+    if len(sys.argv) == 3:
+        pre_file = sys.argv[2]
     #launcherA(dag_file)
     #launcherAWithWrongTable(dag_file,dag_file+".miss")
     #launcherAWithWrongTable(dag_file,dag_file+".order")
@@ -571,5 +765,7 @@ if __name__ == "__main__":
     #launcherD(dag_file)
     #launcherDWithWrongTable(dag_file,dag_file+".miss")
     #launcherDWithWrongTable(dag_file,dag_file+".order")
-    launcherDWithWrongTable(dag_file,dag_file+"_8.mix")
-
+    #launcherDWithWrongTable(dag_file,dag_file+"_8.mix")
+    launcherE(dag_file, pre_file)
+    #launcherF(dag_file, pre_file)
+    #launcherG(dag_file, pre_file)

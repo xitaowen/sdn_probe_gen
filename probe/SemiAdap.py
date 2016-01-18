@@ -127,7 +127,7 @@ def packetGenerator(edge_dict, rule_list, types, q):
             pset[Pid] = pkt
             pkt['pid'] = Pid
             Pid += 1
-        
+
         #print len(pset)
         #IssueProbeSet
         TimeLog.GetInstance().addTotal()
@@ -220,10 +220,15 @@ def packetGenerator(edge_dict, rule_list, types, q):
     #print "VV:",VV
     #print "EE:",EE
     TimeLog.GetInstance().addCalc()
+    #for i in [val for val in V if val not in VV]:
+    #    print "missing:",i
     if len(VV) != len(V):
         return False
     if len([val for val in V if val not in VV]) > 0:
         return False
+    #ret = True
+    #TimeLog.GetInstance().clock()
+    #return ret
 
     #equality for two graph.
     h = {}

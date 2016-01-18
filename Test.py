@@ -1,4 +1,5 @@
-from probe import launcher 
+#!/usr/bin/python
+from probe import launcher
 
 import random
 import os
@@ -31,6 +32,7 @@ if __name__ == "__main__":
         exit(1)
     if not option in ["fault","none-adapt","full-adapt","semi-adapt"]:
         exit(1)
+    print sys.argv
     inputs = {}
     for l in range(level):
         for i in range(l*step,(l+1)*step):
@@ -43,17 +45,24 @@ if __name__ == "__main__":
     #    inputs[i] = [10000,str(i)]
 
     #generate(inputs)
-    inputs = {}
-    inputs[0] = [10,"fig1"+str(0)]
-    inputs[1] = [20,"fig1"+str(1)]
-    inputs[2] = [40,"fig1"+str(2)]
-    inputs[3] = [80,"fig1"+str(3)]
-    inputs[4] = [160,"fig1"+str(4)]
-    inputs[5] = [320,"fig1"+str(5)]
-    inputs[6] = [640,"fig1"+str(6)]
-    inputs[7] = [1280,"fig1"+str(7)]
-    inputs[8] = [2560,"fig1"+str(8)]
-    
+    inputs0 = {}
+    inputs0[0] = [10,"fig1"+str(0)]
+    inputs0[1] = [20,"fig1"+str(1)]
+    inputs0[2] = [40,"fig1"+str(2)]
+    inputs0[3] = [80,"fig1"+str(3)]
+    inputs0[4] = [160,"fig1"+str(4)]
+    inputs0[5] = [320,"fig1"+str(5)]
+
+    inputs1 = {}
+    inputs1[0] = [10,"fig1"+str(0)]
+    inputs1[1] = [20,"fig1"+str(1)]
+    inputs1[2] = [40,"fig1"+str(2)]
+    inputs1[3] = [80,"fig1"+str(3)]
+    inputs1[4] = [160,"fig1"+str(4)]
+    inputs1[5] = [320,"fig1"+str(5)]
+    inputs1[6] = [640,"fig1"+str(6)]
+    inputs1[7] = [1280,"fig1"+str(7)]
+
     total = 0
     right = 0
     times = ["calc","solver","send","total"]
@@ -62,6 +71,13 @@ if __name__ == "__main__":
         time[i] = {}
         for ts in times:
             time[i][ts] = 0
+
+    inputs = {}
+    if option == "fault":
+        inputs = inputs0
+    else:
+        inputs = inputs1
+
     for key in inputs:
         case = inputs[key]
         size= case[0]

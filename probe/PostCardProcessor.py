@@ -21,7 +21,7 @@ class PostCardProcessor(threading.Thread):
         if PostCardProcessor.instance == None:
             PostCardProcessor.mutex.acquire()
             if PostCardProcessor.instance == None:
-                PostCardProcessor.instance = PostCardProcessor('eth2')
+                PostCardProcessor.instance = PostCardProcessor('em3')
                 PostCardProcessor.instance.start()
             PostCardProcessor.mutex.release()
         return PostCardProcessor.instance

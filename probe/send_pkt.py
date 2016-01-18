@@ -77,9 +77,10 @@ class SendPkt(app_manager.RyuApp):
         import socket 
          
         s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW) 
-        s.bind(("eth1", 0))
+        s.bind(("em2", 0))
         s.send(pkt.data)
         s.close()
+        return
         #data = pkt.data
         #data = pkt.data + bytearray(array.array('c', ['5']))
         if self.count < 256:
@@ -177,6 +178,13 @@ class SendPkt(app_manager.RyuApp):
         #pkt.add_protocol((pktid&0xff00)>>8)
         #pkt.add_protocol(pktid&0x00ff)
         pkt.serialize()
+        import socket 
+         
+        s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW) 
+        s.bind(("em2", 0))
+        s.send(pkt.data)
+        s.close()
+        return
         #print "packet data:",pkt.data
         #print len(pkt.data)
         datapath = get_switch(self, dpid)[0].dp

@@ -4,7 +4,8 @@ import re
 import copy
 import time
 
-import header,solver,parser
+import header
+import solver,parser
 from timelog import TimeLog
 output_file = open("data_to_injector.txt", 'w')
 
@@ -51,7 +52,11 @@ def packetGenerator(edge_dict, rule_list, types):
             adj_list = edge_dict[rule1]
 
             for rule2 in adj_list:
+                #intersection = header.intersect_molecule((rule_list[rule1], rule_list[rule2]))
                 intersection = header.intersect_molecule(rule_list[rule1], rule_list[rule2])
+                #print rule1,rule_list[rule1]
+                #print rule2,rule_list[rule2]
+                #print intersection
                 if intersection == None:
                     #print rule1,rule_list[rule1]
                     #print rule2,rule_list[rule2]
@@ -80,7 +85,7 @@ def packetGenerator(edge_dict, rule_list, types):
             TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
                 print "2. (leaf) Dependency Error"
-                print rule1
+                #print rule1
                 return False
 
             tu = (rule1, packet)
@@ -94,7 +99,7 @@ def packetGenerator(edge_dict, rule_list, types):
             TimeLog.GetInstance().addSolver()
             if packet['SAT'] == 'No':
                 print "3. (dependent) Dependency Error"
-                print rule1
+                #print rule1
                 return False
 
             tu = (rule1, packet)

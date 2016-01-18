@@ -10,7 +10,6 @@ import string
 import time
 import socket
 import struct
-sys.path.append("/usr/lib64/python2.7/site-packages")
 
 protocols={socket.IPPROTO_TCP:'tcp',
             socket.IPPROTO_UDP:'udp',
@@ -43,7 +42,7 @@ def dumphex(s):
     for i in xrange(0,len(bytes)/16):
         print '        %s' % string.join(bytes[i*16:(i+1)*16],' ')
     print '        %s' % string.join(bytes[(i+1)*16:],' ')
-
+        
 
 def print_packet(pktlen, data, timestamp):
     if not data:
@@ -62,20 +61,18 @@ def print_packet(pktlen, data, timestamp):
         print '    protocol: %s' % protocols[decoded['protocol']]
         print '    header checksum: %d' % decoded['checksum']
         print '    data:'
-        #dumphex(decoded['data'])
-        dumphex(data)
-
+        dumphex(decoded['data'])
+ 
 
 if __name__=='__main__':
 
     if len(sys.argv) < 3:
         print 'usage: sniff.py <interface> <expr>'
         sys.exit(0)
-    #p = pcap.pcapObject()
-    p = pcap.pcap()
+    p = pcap.pcapObject()
     #dev = pcap.lookupdev()
     dev = sys.argv[1]
-    #net, mask = pcap.lookupnet(dev)
+    net, mask = pcap.lookupnet(dev)
     # note:    to_ms does nothing on linux
     p.open_live(dev, 1600, 0, 100)
     #p.dump_open('dumpfile')
@@ -97,13 +94,13 @@ if __name__=='__main__':
         #    p.loop(1, print_packet)
 
         # as is the next() method
-        # p.next() returns a (pktlen, data, timestamp) tuple
+        # p.next() returns a (pktlen, data, timestamp) tuple 
         #    apply(print_packet,p.next())
     except KeyboardInterrupt:
         print '%s' % sys.exc_type
         print 'shutting down'
         print '%d packets received, %d packets dropped, %d packets dropped by interface' % p.stats()
-
+    
 
 
 # vim:set ts=4 sw=4 et:
