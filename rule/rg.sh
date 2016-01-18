@@ -1,0 +1,10 @@
+./rgenerator.sh fig15.9 320
+./rgenerator.sh fig15.8 320
+./rgenerator.sh fig15.7 320
+./rgenerator.sh fig15.6 320
+./rgenerator.sh fig15.5 320
+./rgenerator.sh fig15.4 320
+./rgenerator.sh fig15.3 320
+./rgenerator.sh fig15.2 320
+./rgenerator.sh fig15.1 320
+./rgenerator.sh fig15.0 320

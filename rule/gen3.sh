@@ -1,0 +1,12 @@
+sh fig3.sh mrulemissing fig15 1 miss
+sh fig3.sh mrulemissing fig15 2 miss
+sh fig3.sh mrulemissing fig15 4 miss
+sh fig3.sh mrulemissing fig15 8 miss
+sh fig3.sh mrulemissing fig15 16 miss
+sh fig3.sh mrulemissing fig15 32 miss
+sh fig3.sh moutoforder fig15 1 order
+sh fig3.sh moutoforder fig15 2 order
+sh fig3.sh moutoforder fig15 4 order
+sh fig3.sh moutoforder fig15 8 order
+sh fig3.sh moutoforder fig15 16 order
+sh fig3.sh moutoforder fig15 32 order

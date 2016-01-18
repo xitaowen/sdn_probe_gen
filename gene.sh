@@ -1,0 +1,9 @@
+cd rule;sh generator.sh fig10 10
+cd rule;sh generator.sh fig11 20
+cd rule;sh generator.sh fig12 40
+cd rule;sh generator.sh fig13 80
+cd rule;sh generator.sh fig14 160
+cd rule;sh generator.sh fig15 320
+cd rule;sh generator.sh fig16 640
+cd rule;sh generator.sh fig17 1280
+cd rule;sh generator.sh fig18 2560
